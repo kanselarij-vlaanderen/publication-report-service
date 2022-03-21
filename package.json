@@ -7,7 +7,12 @@
     "engines": {
         "node": ">=14.16.1"
     },
-    "dependencies": {},
+    "// note: depencencies": {
+      "node-fetch": "< 3: version 3 requires esmodules"
+    },
+    "dependencies": {
+        "node-fetch": "^2.6.7"
+    },
     "devDependencies": {
         "eslint": "^8.11.0",
         "eslint-config-prettier": "^8.5.0",
