@@ -6,10 +6,10 @@
     "//": "type=module: IDE support for `import`",
     "type": "module",
     "engines": {
-        "node": ">=14.16.1"
+        "node": "12.16.1"
     },
     "// note: depencencies": {
-      "node-fetch": "< 3: version 3 requires esmodules"
+        "node-fetch": "< 3: version 3 requires esmodules"
     },
     "dependencies": {
         "node-fetch": "^2.6.7"
