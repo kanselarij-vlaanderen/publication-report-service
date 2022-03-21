@@ -3,6 +3,7 @@
     "description": "Generate CSV reports to monitor the publication process",
     "version": "1.0.0",
     "licence": "MIT",
+    "//": "type=module: IDE support for `import`",
     "type": "module",
     "engines": {
         "node": ">=14.16.1"
