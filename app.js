@@ -1,11 +1,11 @@
 import mu from 'mu';
-import * as SparqlDownloadClient from './lib/SparqlDownloadClient.js';
+import * as VirtuosoClient from './lib/VirtuosoClient.js';
 import * as RegulationType from './queries/reports/RegulationType.js';
 
 mu.app.get('/', async function (req, res, next) {
   try {
     const query = await RegulationType.query();
-    await SparqlDownloadClient.toCsv(
+    await VirtuosoClient.toCsv(
       query,
       `/app/data/test${new Date().toISOString().slice(0, 10)}.csv`
     );
