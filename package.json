@@ -1,24 +1,24 @@
 {
-    "name": "publication-report-service",
-    "description": "Generate CSV reports to monitor the publication process",
-    "version": "1.0.0",
-    "licence": "MIT",
-    "//": "type=module: IDE support for `import`",
-    "type": "module",
-    "engines": {
-        "node": "12.16.1"
-    },
-    "// note: depencencies": {
-        "node-fetch": "< 3: version 3 requires esmodules"
-    },
-    "dependencies": {
-        "node-fetch": "^2.6.7"
-    },
-    "devDependencies": {
-        "eslint": "^8.11.0",
-        "eslint-config-prettier": "^8.5.0",
-        "eslint-plugin-node": "^11.1.0",
-        "eslint-plugin-prettier": "^4.0.0",
-        "prettier": "^2.6.0"
-    }
+  "name": "publication-report-service",
+  "description": "Generate CSV reports to monitor the publication process",
+  "version": "1.0.0",
+  "licence": "MIT",
+  "//": "type=module: IDE support for `import`",
+  "type": "module",
+  "engines": {
+    "node": "12.16.1"
+  },
+  "// note: depencencies": {
+    "node-fetch": "< 3: version 3 requires esmodules"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  },
+  "devDependencies": {
+    "eslint": "^8.11.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.6.0"
+  }
 }
