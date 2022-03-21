@@ -1,18 +1,21 @@
+import path from 'path';
 import mu from 'mu';
+import * as config from './config.js';
 import * as VirtuosoClient from './lib/VirtuosoClient.js';
 import * as RegulationType from './queries/reports/RegulationType.js';
 
 const client = VirtuosoClient.create({
-  sparqlEndpointUrl: process.env.VIRTUOSO_SPARQL_ENDPOINT,
+  sparqlEndpointUrl: config.VIRTUOSO_SPARQL_ENDPOINT,
 });
 
 mu.app.get('/', async function (req, res, next) {
   try {
     const query = await RegulationType.query();
-    await client.downloadToCsv(
-      query,
-      `/app/data/test${new Date().toISOString().slice(0, 10)}.csv`
-    );
+
+    const reportFileName = mu.uuid() + '.csv';
+    const reportFilePath = path.join(config.STORAGE_PATH, reportFileName);
+
+    await client.downloadToCsv(query, reportFilePath);
     res.send(JSON.stringify({ status: 'OK' }));
   } catch (err) {
     next(err, req, res, next);
