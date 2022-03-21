@@ -1,5 +1,13 @@
-import { app } from 'mu';
+import mu from 'mu';
+import * as RegulationType from './queries/reports/RegulationType.js';
 
-app.get('/', function (req, res) {
-  res.send('Publication Reports Service says: "Hello world!"');
+mu.app.get('/', async function (req, res, next) {
+  try {
+    const q = await RegulationType.query();
+    res.send(JSON.stringify(await mu.query(q)));
+  } catch (err) {
+    next(err, req, res, next);
+  }
 });
+
+mu.app.use(mu.errorHandler);
