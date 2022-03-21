@@ -11,7 +11,7 @@ module.exports = {
     'plugin:prettier/recommended',
   ],
   rules: {
-    'prettier/prettier': 'error',
+    'prettier/prettier': 'warn',
     // quick fixes to allow mu modules
     'node/no-extraneous-import': 'off',
     'node/no-missing-import': 'off',
