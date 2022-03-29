@@ -2,6 +2,7 @@ import path from 'path';
 import mu from 'mu';
 import MuAuthSudo from '@lblod/mu-auth-sudo';
 import * as config from './config.js';
+import * as Utils from './lib/utils.js';
 import * as Delta from './lib/delta.js';
 import * as VirtuosoClient from './lib/VirtuosoClient.js';
 import * as RegulationType from './queries/reports/RegulationType.js';
@@ -35,6 +36,10 @@ mu.app.post('/delta', bodyParser.json(), async function (req, res) {
   console.log('I received jobs with URIs: ', newJobUris.join(' '));
 
   for (let jobUri of newJobUris) {
+    let jobQuery = JobQueries.get(jobUri);
+    let result = await MuAuthSudo.querySudo(jobQuery);
+    console.log(Utils.parseSparqlResults(result));
+
     let startTime = new Date();
     console.info(`Job <${jobUri}>: start`);
     let queryStart = JobQueries.updateStatusToRunning(jobUri, startTime);
