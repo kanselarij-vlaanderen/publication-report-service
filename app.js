@@ -4,8 +4,8 @@ import MuAuthSudo from '@lblod/mu-auth-sudo';
 import * as Config from './config.js';
 import * as Utils from './lib/utils.js';
 import * as Delta from './lib/delta.js';
-import * as VirtuosoClient from './lib/VirtuosoClient.js';
-import * as RegulationType from './queries/reports/RegulationType.js';
+import * as VirtuosoClient from './lib/virtuoso-client.js';
+import * as RegulationType from './queries/reports/regulation-type.js';
 import * as JobQueries from './queries/jobs.js';
 import bodyParser from 'body-parser';
 
