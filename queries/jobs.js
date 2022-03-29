@@ -4,7 +4,7 @@ const RUNNING = 'http://vocab.deri.ie/cogs#Running';
 const SUCCESS = 'http://vocab.deri.ie/cogs#Success';
 const FAIL = 'http://vocab.deri.ie/cogs#Fail';
 
-export function get(jobUri) {
+export function buildGet(jobUri) {
   let _jobUri = Mu.sparqlEscapeUri(jobUri);
 
   return `
@@ -17,15 +17,34 @@ export function get(jobUri) {
   SELECT *
   WHERE {
     ${_jobUri} a pub:PublicationMetricsExportJob .
-    ${_jobUri} dct:created ?created .
+    ${_jobUri} dct:created ?createdTime .
     ${_jobUri} pub:exportJobConfig ?config .
-    OPTIONAL { ${_jobUri} ext:status ?status . }
+    OPTIONAL { ${_jobUri} ext:status ?statusUri . }
     OPTIONAL { ${_jobUri} prov:startedAtTime ?startTime . }
     OPTIONAL { ${_jobUri} prov:startedAtTime ?endTime . }
-    ${_jobUri} prov:wasStartedBy ?user .
-    OPTIONAL { ${_jobUri} prov:generated ?file . }
+    ${_jobUri} prov:wasStartedBy ?userUri .
+    OPTIONAL { ${_jobUri} prov:generated ?fileUri . }
   }
   `;
+}
+
+export function parseGet(data) {
+  let jobResult = data.results.bindings[0];
+
+  let createdTime = Date.parse(jobResult.createdTime.value);
+  let config = JSON.parse(jobResult.config.value);
+  let startTime = Date.parse(jobResult.startTime?.value);
+  let endTime = Date.parse(jobResult.endTime?.value);
+
+  return {
+    createdTime: createdTime,
+    config: config,
+    statusUri: jobResult.statusUri?.value,
+    startTime: startTime,
+    endTime: endTime,
+    userUri: jobResult.userUri.value,
+    fileUri: jobResult.fileUri?.value,
+  };
 }
 
 export function updateStatusToRunning(jobUri, time) {
