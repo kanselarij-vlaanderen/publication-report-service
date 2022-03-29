@@ -1,9 +1,11 @@
 import path from 'path';
 import mu from 'mu';
+import MuAuthSudo from '@lblod/mu-auth-sudo';
 import * as config from './config.js';
 import * as Delta from './lib/delta.js';
 import * as VirtuosoClient from './lib/VirtuosoClient.js';
 import * as RegulationType from './queries/reports/RegulationType.js';
+import * as JobQueries from './queries/jobs.js';
 import bodyParser from 'body-parser';
 
 const client = VirtuosoClient.create({
@@ -31,6 +33,19 @@ mu.app.post('/delta', bodyParser.json(), async function (req, res) {
   let newJobUris = Delta.filterInsertedJobUris(deltas);
 
   console.log('I received jobs with URIs: ', newJobUris.join(' '));
+
+  for (let jobUri of newJobUris) {
+    let startTime = new Date();
+    console.info(`Job <${jobUri}>: start`);
+    let queryStart = JobQueries.updateStatusToRunning(jobUri, startTime);
+    await MuAuthSudo.querySudo(queryStart);
+
+    let endTime = new Date();
+    console.info(`Job <${jobUri}>: success`);
+    let queryEnd = JobQueries.updateStatusToSuccess(jobUri, endTime);
+    await MuAuthSudo.querySudo(queryEnd);
+  }
+
 });
 
 mu.app.use(mu.errorHandler);

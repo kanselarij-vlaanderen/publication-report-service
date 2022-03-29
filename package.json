@@ -12,6 +12,7 @@
     "node-fetch": "< 3: version 3 requires esmodules"
   },
   "dependencies": {
+    "@lblod/mu-auth-sudo": "^0.5.1",
     "node-fetch": "^2.6.7"
   },
   "devDependencies": {
