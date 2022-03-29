@@ -1,7 +1,7 @@
-import path from 'path';
-import mu from 'mu';
+import Path from 'path';
+import Mu from 'mu';
 import MuAuthSudo from '@lblod/mu-auth-sudo';
-import * as config from './config.js';
+import * as Config from './config.js';
 import * as Utils from './lib/utils.js';
 import * as Delta from './lib/delta.js';
 import * as VirtuosoClient from './lib/VirtuosoClient.js';
@@ -10,15 +10,15 @@ import * as JobQueries from './queries/jobs.js';
 import bodyParser from 'body-parser';
 
 const client = VirtuosoClient.create({
-  sparqlEndpointUrl: config.VIRTUOSO_SPARQL_ENDPOINT,
+  sparqlEndpointUrl: Config.VIRTUOSO_SPARQL_ENDPOINT,
 });
 
-mu.app.get('/', async function (req, res, next) {
+Mu.app.get('/', async function (req, res, next) {
   try {
-    const query = await RegulationType.query();
+    let query = await RegulationType.query();
 
-    const reportFileName = mu.uuid() + '.csv';
-    const reportFilePath = path.join(config.STORAGE_PATH, reportFileName);
+    let reportFileName = Mu.uuid() + '.csv';
+    let reportFilePath = Path.join(Config.STORAGE_PATH, reportFileName);
 
     await client.downloadToCsv(query, reportFilePath);
     res.send(JSON.stringify({ status: 'OK' }));
@@ -27,7 +27,7 @@ mu.app.get('/', async function (req, res, next) {
   }
 });
 
-mu.app.post('/delta', bodyParser.json(), async function (req, res) {
+Mu.app.post('/delta', bodyParser.json(), async function (req, res) {
   res.status(202).end();
 
   let deltas = req.body;
@@ -53,4 +53,4 @@ mu.app.post('/delta', bodyParser.json(), async function (req, res) {
 
 });
 
-mu.app.use(mu.errorHandler);
+Mu.app.use(Mu.errorHandler);

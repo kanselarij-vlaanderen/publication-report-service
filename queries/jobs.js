@@ -1,11 +1,11 @@
-import mu from 'mu';
+import Mu from 'mu';
 
 const RUNNING = 'http://vocab.deri.ie/cogs#Running';
 const SUCCESS = 'http://vocab.deri.ie/cogs#Success';
 const FAIL = 'http://vocab.deri.ie/cogs#Fail';
 
 export function get(jobUri) {
-  const _jobUri = mu.sparqlEscapeUri(jobUri);
+  let _jobUri = Mu.sparqlEscapeUri(jobUri);
 
   return `
   PREFIX cogs: <http://vocab.deri.ie/cogs#>
@@ -47,30 +47,32 @@ export function _updateStatus(jobUri, status, time) {
   } else {
     timePred = 'http://www.w3.org/ns/prov#startedAtTime';
   }
-  const escapedUri = mu.sparqlEscapeUri(jobUri);
+  let _jobUri = Mu.sparqlEscapeUri(jobUri);
 
   return `
   PREFIX cogs: <http://vocab.deri.ie/cogs#>
+  PREFIX dct: <http://purl.org/dc/terms/>
   PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
+  PREFIX prov: <http://www.w3.org/ns/prov#>
   PREFIX pub: <http://mu.semte.ch/vocabularies/ext/publicatie/>
 
   DELETE {
       GRAPH ?g {
-        ${escapedUri} ext:status ?status ;
-            ${mu.sparqlEscapeUri(timePred)} ?time .
+        ${_jobUri} ext:status ?status ;
+            ${Mu.sparqlEscapeUri(timePred)} ?time .
       }
   }
   INSERT {
       GRAPH ?g {
-          ${escapedUri} ext:status ${mu.sparqlEscapeUri(status)} ;
-              ${mu.sparqlEscapeUri(timePred)} ${mu.sparqlEscapeDateTime(time)} .
+          ${_jobUri} ext:status ${Mu.sparqlEscapeUri(status)} ;
+              ${Mu.sparqlEscapeUri(timePred)} ${Mu.sparqlEscapeDateTime(time)} .
       }
   }
   WHERE {
       GRAPH ?g {
-          ${escapedUri} a pub:PublicationMetricsExportJob .
-          OPTIONAL { ${escapedUri} ext:status ?status }
-          OPTIONAL { ${escapedUri} ${mu.sparqlEscapeUri(timePred)} ?time }
+          ${_jobUri} a pub:PublicationMetricsExportJob .
+          OPTIONAL { ${_jobUri} ext:status ?status }
+          OPTIONAL { ${_jobUri} ${Mu.sparqlEscapeUri(timePred)} ?time }
       }
   }`;
 }
