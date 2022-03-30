@@ -1,8 +1,5 @@
 import Mu from 'mu';
-
-const RUNNING = 'http://vocab.deri.ie/cogs#Running';
-const SUCCESS = 'http://vocab.deri.ie/cogs#Success';
-const FAIL = 'http://vocab.deri.ie/cogs#Fail';
+import { Status } from '../lib/download-job';
 
 export function buildGet(jobUri) {
   let _jobUri = Mu.sparqlEscapeUri(jobUri);
@@ -48,20 +45,23 @@ export function parseGet(data) {
 }
 
 export function updateStatusToRunning(jobUri, time) {
-  return _updateStatus(jobUri, RUNNING, time);
+  return _updateStatus(jobUri, Status.RUNNING, time);
 }
 
 export function updateStatusToSuccess(jobUri, time) {
-  return _updateStatus(jobUri, SUCCESS, time);
+  return _updateStatus(jobUri, Status.SUCCESS, time);
 }
 
 export function updateStatusToFail(jobUri, time) {
-  return _updateStatus(jobUri, FAIL, time);
+  return _updateStatus(jobUri, Status.FAIL, time);
 }
 
 export function _updateStatus(jobUri, status, time) {
   let timePred;
-  if (status === SUCCESS || status === FAIL /* final statusses */) {
+  if (
+    status === Status.SUCCESS ||
+    status === Status.FAIL /* final statusses */
+  ) {
     timePred = 'http://www.w3.org/ns/prov#endedAtTime';
   } else {
     timePred = 'http://www.w3.org/ns/prov#startedAtTime';
