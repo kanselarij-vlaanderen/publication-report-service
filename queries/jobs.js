@@ -1,5 +1,5 @@
 import Mu from 'mu';
-import { Status } from '../lib/download-job';
+import { JobStatus } from '../lib/job-runner';
 
 export function buildGet(jobUri) {
   let _jobUri = Mu.sparqlEscapeUri(jobUri);
@@ -46,22 +46,22 @@ export function parseGet(data) {
 }
 
 export function updateStatusToRunning(jobUri, time) {
-  return _updateStatus(jobUri, Status.RUNNING, time);
+  return _updateStatus(jobUri, JobStatus.RUNNING, time);
 }
 
 export function updateStatusToSuccess(jobUri, time) {
-  return _updateStatus(jobUri, Status.SUCCESS, time);
+  return _updateStatus(jobUri, JobStatus.SUCCESS, time);
 }
 
 export function updateStatusToFail(jobUri, time) {
-  return _updateStatus(jobUri, Status.FAIL, time);
+  return _updateStatus(jobUri, JobStatus.FAIL, time);
 }
 
 export function _updateStatus(jobUri, status, time) {
   let timePred;
   if (
-    status === Status.SUCCESS ||
-    status === Status.FAIL /* final statusses */
+    status === JobStatus.SUCCESS ||
+    status === JobStatus.FAIL /* final statusses */
   ) {
     timePred = 'http://www.w3.org/ns/prov#endedAtTime';
   } else {
