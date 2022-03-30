@@ -10,12 +10,7 @@ Mu.app.post('/delta', bodyParser.json(), async function (req, res) {
   let deltas = req.body;
   let newJobUris = Delta.filterInsertedJobUris(deltas);
 
-  console.log('I received jobs with URIs: ', newJobUris.join(' '));
-
   for (let jobUri of newJobUris) {
     JobRunner.run(jobUri, DownloadJob);
   }
-
 });
-
-Mu.app.use(Mu.errorHandler);
