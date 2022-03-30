@@ -25,6 +25,7 @@ export function buildGet(jobUri) {
   `;
 }
 
+/** @typedef {ReturnType<parseGet>} Job */
 export function parseGet(data) {
   let jobResult = data.results.bindings[0];
 
