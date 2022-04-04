@@ -49,8 +49,34 @@ export function updateStatusToRunning(jobUri, time) {
   return _updateStatus(jobUri, JobStatus.RUNNING, time);
 }
 
-export function updateStatusToSuccess(jobUri, time) {
-  return _updateStatus(jobUri, JobStatus.SUCCESS, time);
+export function updateStatusToSuccess(jobUri, time, jobResultUri) {
+  let _jobUri = sparqlEscapeUri(jobUri);
+
+  return `
+  PREFIX cogs: <http://vocab.deri.ie/cogs#>
+  PREFIX dct: <http://purl.org/dc/terms/>
+  PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
+  PREFIX prov: <http://www.w3.org/ns/prov#>
+  PREFIX pub: <http://mu.semte.ch/vocabularies/ext/publicatie/>
+
+  DELETE {
+    GRAPH ?g {
+      ${_jobUri} ext:status cogs:Running .
+    }
+  }
+  INSERT {
+      GRAPH ?g {
+          ${_jobUri} ext:status cogs:Success .
+          ${_jobUri} prov:endedAtTime ${sparqlEscapeDateTime(time)} .
+          ${_jobUri} prov:generated ${sparqlEscapeUri(jobResultUri)} .
+      }
+  }
+  WHERE {
+      GRAPH ?g {
+          ${_jobUri} a pub:PublicationMetricsExportJob .
+      }
+  }
+`;
 }
 
 export function updateStatusToFail(jobUri, time) {
@@ -93,5 +119,6 @@ export function _updateStatus(jobUri, status, time) {
           ${_jobUri} a pub:PublicationMetricsExportJob .
           OPTIONAL { ${_jobUri} ext:status ?status . }
           OPTIONAL { ${_jobUri} ${sparqlEscapeUri(timePred)} ?time . }
+      }
   }`;
 }

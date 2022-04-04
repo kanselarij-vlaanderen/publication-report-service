@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "@lblod/mu-auth-sudo": "^0.5.1",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "sanitize-filename": "^1.6.3"
   },
   "devDependencies": {
     "eslint": "^8.11.0",
