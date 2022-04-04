@@ -1,8 +1,8 @@
-import Mu from 'mu';
+import { sparqlEscapeUri, sparqlEscapeDateTime } from 'mu';
 import { JobStatus } from '../lib/job-runner';
 
 export function buildGet(jobUri) {
-  let _jobUri = Mu.sparqlEscapeUri(jobUri);
+  let _jobUri = sparqlEscapeUri(jobUri);
 
   return `
   PREFIX cogs: <http://vocab.deri.ie/cogs#>
@@ -67,7 +67,7 @@ export function _updateStatus(jobUri, status, time) {
   } else {
     timePred = 'http://www.w3.org/ns/prov#startedAtTime';
   }
-  let _jobUri = Mu.sparqlEscapeUri(jobUri);
+  let _jobUri = sparqlEscapeUri(jobUri);
 
   return `
   PREFIX cogs: <http://vocab.deri.ie/cogs#>
@@ -79,20 +79,19 @@ export function _updateStatus(jobUri, status, time) {
   DELETE {
       GRAPH ?g {
         ${_jobUri} ext:status ?status ;
-            ${Mu.sparqlEscapeUri(timePred)} ?time .
+            ${sparqlEscapeUri(timePred)} ?time .
       }
   }
   INSERT {
       GRAPH ?g {
-          ${_jobUri} ext:status ${Mu.sparqlEscapeUri(status)} ;
-              ${Mu.sparqlEscapeUri(timePred)} ${Mu.sparqlEscapeDateTime(time)} .
+          ${_jobUri} ext:status ${sparqlEscapeUri(status)} ;
+              ${sparqlEscapeUri(timePred)} ${sparqlEscapeDateTime(time)} .
       }
   }
   WHERE {
       GRAPH ?g {
           ${_jobUri} a pub:PublicationMetricsExportJob .
-          OPTIONAL { ${_jobUri} ext:status ?status }
-          OPTIONAL { ${_jobUri} ${Mu.sparqlEscapeUri(timePred)} ?time }
-      }
+          OPTIONAL { ${_jobUri} ext:status ?status . }
+          OPTIONAL { ${_jobUri} ${sparqlEscapeUri(timePred)} ?time . }
   }`;
 }
