@@ -14,7 +14,7 @@ import {
  *  extension: string,
  *  format: string,
  *  size: number,
- *  created: Date,
+ *  createdTime: Date,
  * }} FileRecord
  *
  * @typedef {{
@@ -46,8 +46,8 @@ export function create(fileRecord, physicalFileRecord) {
                 dbpedia:fileExtension ${sparqlEscapeString(
                   fileRecord.extension
                 )} ;
-                dct:created ${sparqlEscapeDateTime(fileRecord.created)} ;
-                dct:modified ${sparqlEscapeDateTime(fileRecord.created)} .
+                dct:created ${sparqlEscapeDateTime(fileRecord.createdTime)} ;
+                dct:modified ${sparqlEscapeDateTime(fileRecord.createdTime)} .
           ${sparqlEscapeUri(physicalFileRecord.uri)} a nfo:FileDataObject ;
                 nie:dataSource ${sparqlEscapeUri(fileRecord.uri)} ;
                 nfo:fileName ${sparqlEscapeString(physicalFileRecord.name)} ;
@@ -57,8 +57,8 @@ export function create(fileRecord, physicalFileRecord) {
                 dbpedia:fileExtension ${sparqlEscapeString(
                   fileRecord.extension
                 )} ;
-                dct:created ${sparqlEscapeDateTime(fileRecord.created)} ;
-                dct:modified ${sparqlEscapeDateTime(fileRecord.created)} .
+                dct:created ${sparqlEscapeDateTime(fileRecord.createdTime)} ;
+                dct:modified ${sparqlEscapeDateTime(fileRecord.createdTime)} .
       }
   }`;
 }
