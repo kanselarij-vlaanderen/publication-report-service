@@ -37,5 +37,6 @@ WHERE {
     # FILTER(?decisionDate > "2018-01-01"^^xsd:date && ?decisionDate < "2019-01-01"^^xsd:date)
 }
 GROUP BY ?policyDomainLabel
+ORDER BY ?policyDomainLabel
 `;
 }
