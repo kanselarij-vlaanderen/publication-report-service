@@ -5,7 +5,7 @@ PREFIX eli: <http://data.europa.eu/eli/ontology#>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX pub: <http://mu.semte.ch/vocabularies/ext/publicatie/>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-PREFIX fabio: <http://purl.org/spar/fabio/#>
+PREFIX fabio: <http://purl.org/spar/fabio/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX dossier: <https://data.vlaanderen.be/ns/dossier#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>

@@ -8,7 +8,7 @@ PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX mandaat: <http://data.vlaanderen.be/ns/mandaat#>
 PREFIX persoon: <https://data.vlaanderen.be/ns/persoon#>
 PREFIX person: <http://www.w3.org/ns/person#>
-PREFIX fabio: <http://purl.org/spar/fabio/#>
+PREFIX fabio: <http://purl.org/spar/fabio/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX dossier: <https://data.vlaanderen.be/ns/dossier#>
 PREFIX dct: <http://purl.org/dc/terms/>
