@@ -102,7 +102,7 @@ WHERE {
 `;
 }
 
-export function updateStatusToFail(jobUri, time) {
+export function updateStatusToError(jobUri, time) {
   let _jobUri = sparqlEscapeUri(jobUri);
 
   return `
