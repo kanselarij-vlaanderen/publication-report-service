@@ -31,8 +31,12 @@ export function parseGet(data) {
 
   let createdTime = Date.parse(jobResult.createdTime.value);
   let config = JSON.parse(jobResult.config.value);
-  let startTime = Date.parse(jobResult.startTime?.value);
-  let endTime = Date.parse(jobResult.endTime?.value);
+  let startTime = jobResult.startTime
+    ? Date.parse(jobResult.startTime.value)
+    : undefined;
+  let endTime = jobResult.endTime
+    ? Date.parse(jobResult.endTime.value)
+    : undefined;
 
   return {
     createdTime: createdTime,
