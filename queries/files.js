@@ -15,18 +15,13 @@ import {
  *  format: string,
  *  size: number,
  *  createdTime: Date,
+ *  modifiedTime: Date,
  * }} FileRecord
- *
- * @typedef {{
- *  uri: string,
- *  uuid: string,
- *  name: string,
- * }} PhysicalFileRecord
  */
 
 /**
- * @param {FileRecord} fileRecord
- * @param {PhysicalFileRecord} physicalFileRecord
+ * @param {FileRecord} userFileRecord
+ * @param {FileRecord} storageFileRecord
  */
 export function create(userFileRecord, storageFileRecord) {
   return `
@@ -50,11 +45,13 @@ INSERT DATA {
         nie:dataSource ${sparqlEscapeUri(userFileRecord.uri)} ;
         nfo:fileName ${sparqlEscapeString(storageFileRecord.name)} ;
         mu:uuid ${sparqlEscapeString(storageFileRecord.uuid)} ;
-        dct:format ${sparqlEscapeString(userFileRecord.format)} ;
-        nfo:fileSize ${sparqlEscapeInt(userFileRecord.size)} ;
-        dbpedia:fileExtension ${sparqlEscapeString(userFileRecord.extension)} ;
-        dct:created ${sparqlEscapeDateTime(userFileRecord.createdTime)} ;
-        dct:modified ${sparqlEscapeDateTime(userFileRecord.createdTime)} .
+        dct:format ${sparqlEscapeString(storageFileRecord.format)} ;
+        nfo:fileSize ${sparqlEscapeInt(storageFileRecord.size)} ;
+        dbpedia:fileExtension ${sparqlEscapeString(
+          storageFileRecord.extension
+        )} ;
+        dct:created ${sparqlEscapeDateTime(storageFileRecord.createdTime)} ;
+        dct:modified ${sparqlEscapeDateTime(storageFileRecord.createdTime)} .
     }
   }
 `;
