@@ -5,7 +5,7 @@ if (!VIRTUOSO_SPARQL_ENDPOINT) {
 
 export const STORAGE_PATH = process.env.STORAGE_PATH ?? `/share`;
 
-export const RESOURCE_URI_BASE = `http://mu.semte.ch/services/file-bundling-service/`;
+export const RESOURCE_URI_BASE = `http://mu.semte.ch/services/publication-report-service/`;
 export function buildResourceUri(typePlural, uuid) {
   return RESOURCE_URI_BASE + typePlural + '/' + uuid;
 }
