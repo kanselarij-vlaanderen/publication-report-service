@@ -1,5 +1,5 @@
 import * as Reports from './reports';
-import * as File from './file';
+import * as Files from './files';
 import * as Jobs from './jobs';
 
-export { Reports, File, Jobs };
+export { Reports, Files, Jobs };
