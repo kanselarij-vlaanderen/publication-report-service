@@ -1,5 +1,4 @@
 import { sparqlEscapeUri, sparqlEscapeDateTime } from 'mu';
-import { JobStatus } from '../lib/job-runner';
 
 export function buildGet(jobUri) {
   let _jobUri = sparqlEscapeUri(jobUri);
@@ -50,7 +49,27 @@ export function parseGet(data) {
 }
 
 export function updateStatusToRunning(jobUri, time) {
-  return _updateStatus(jobUri, JobStatus.RUNNING, time);
+  let _jobUri = sparqlEscapeUri(jobUri);
+
+  return `
+  PREFIX cogs: <http://vocab.deri.ie/cogs#>
+  PREFIX dct: <http://purl.org/dc/terms/>
+  PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
+  PREFIX prov: <http://www.w3.org/ns/prov#>
+  PREFIX pub: <http://mu.semte.ch/vocabularies/ext/publicatie/>
+
+  INSERT {
+      GRAPH ?g {
+          ${_jobUri} ext:status cogs:Running .
+          ${_jobUri} prov:startedAtTime ${sparqlEscapeDateTime(time)} .
+      }
+  }
+  WHERE {
+      GRAPH ?g {
+          ${_jobUri} a pub:PublicationMetricsExportJob .
+      }
+  }
+  `;
 }
 
 export function updateStatusToSuccess(jobUri, time, jobResultUri) {
@@ -84,19 +103,6 @@ export function updateStatusToSuccess(jobUri, time, jobResultUri) {
 }
 
 export function updateStatusToFail(jobUri, time) {
-  return _updateStatus(jobUri, JobStatus.FAIL, time);
-}
-
-export function _updateStatus(jobUri, status, time) {
-  let timePred;
-  if (
-    status === JobStatus.SUCCESS ||
-    status === JobStatus.FAIL /* final statusses */
-  ) {
-    timePred = 'http://www.w3.org/ns/prov#endedAtTime';
-  } else {
-    timePred = 'http://www.w3.org/ns/prov#startedAtTime';
-  }
   let _jobUri = sparqlEscapeUri(jobUri);
 
   return `
@@ -107,22 +113,23 @@ export function _updateStatus(jobUri, status, time) {
   PREFIX pub: <http://mu.semte.ch/vocabularies/ext/publicatie/>
 
   DELETE {
-      GRAPH ?g {
-        ${_jobUri} ext:status ?status ;
-            ${sparqlEscapeUri(timePred)} ?time .
-      }
+    GRAPH ?g {
+      ${_jobUri} ext:status ?status .
+      ${_jobUri} prov:endedAtTime ?time .
+    }
   }
   INSERT {
       GRAPH ?g {
-          ${_jobUri} ext:status ${sparqlEscapeUri(status)} ;
-              ${sparqlEscapeUri(timePred)} ${sparqlEscapeDateTime(time)} .
+          ${_jobUri} ext:status cogs:Fail .
+          ${_jobUri} prov:endedAtTime ${sparqlEscapeDateTime(time)} .
       }
   }
   WHERE {
       GRAPH ?g {
           ${_jobUri} a pub:PublicationMetricsExportJob .
           OPTIONAL { ${_jobUri} ext:status ?status . }
-          OPTIONAL { ${_jobUri} ${sparqlEscapeUri(timePred)} ?time . }
+          OPTIONAL { ${_jobUri} prov:endedAtTime ?time . }
       }
-  }`;
+  }
+`;
 }
