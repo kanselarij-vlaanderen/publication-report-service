@@ -10,7 +10,7 @@ The frontend does not access this service directly: both the request by the user
 ## Getting started
 ### Add the export service to your stack
 #### For development
-Add the following snippet to your `docker-compose.yml`:
+Add the following snippet to `docker-compose.yml`:
 ```yml
   publication-report:
     build: $PUBLCIATION_REPORTS_DIRECTORY
@@ -22,7 +22,31 @@ Add the following snippet to your `docker-compose.yml`:
       - MU_SPARQL_ENDPOINT=http://database:8890/sparql
       - VIRTUOSO_SPARQL_ENDPOINT=http://triplestore:8890/sparql
 ```
-
+### Deltanotifier
+Add the following snippet to `config/delta/rules.js`
+```javascript
+  {
+    match: {
+      predicate: {
+        type: 'uri',
+        value: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+      },
+      object: {
+        type: 'uri',
+        value: 'http://mu.semte.ch/vocabularies/ext/publicatie/PublicationMetricsExportJob'
+      }
+    },
+    callback: {
+      url: 'http://publication-report/delta',
+      method: 'POST'
+    },
+    options: {
+      resourceFormat: 'v0.0.1',
+      gracePeriod: 250,
+      ignoreFromSelf: false
+    }
+  },
+```
 ## How-to guides
 ### How to trigger the export of a report
 The service is triggered by the notification of the creation of a `pub:PublicationMetricsExportJob` record by the deltanotifier service. The file is downloaded to the server.
