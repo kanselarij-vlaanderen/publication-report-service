@@ -17,7 +17,7 @@ export function buildGet(jobUri) {
     ${_jobUri} pub:exportJobConfig ?config .
     OPTIONAL { ${_jobUri} ext:status ?statusUri . }
     OPTIONAL { ${_jobUri} prov:startedAtTime ?startTime . }
-    OPTIONAL { ${_jobUri} prov:startedAtTime ?endTime . }
+    OPTIONAL { ${_jobUri} prov:endedAtTime ?endTime . }
     ${_jobUri} prov:wasStartedBy ?userUri .
     OPTIONAL { ${_jobUri} prov:generated ?fileUri . }
   }
