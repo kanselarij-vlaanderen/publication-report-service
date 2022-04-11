@@ -28,13 +28,13 @@ WHERE {
 export function parseGet(data) {
   let jobResult = data.results.bindings[0];
 
-  let createdTime = Date.parse(jobResult.createdTime.value);
+  let createdTime = new Date(jobResult.createdTime.value);
   let config = JSON.parse(jobResult.config.value);
   let startTime = jobResult.startTime
-    ? Date.parse(jobResult.startTime.value)
+    ? new Date(jobResult.startTime.value)
     : undefined;
   let endTime = jobResult.endTime
-    ? Date.parse(jobResult.endTime.value)
+    ? new Date(jobResult.endTime.value)
     : undefined;
 
   return {
