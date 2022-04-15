@@ -29,7 +29,7 @@ export function parseGet(data) {
   let jobResult = data.results.bindings[0];
 
   let createdTime = new Date(jobResult.createdTime.value);
-  let config = JSON.parse(jobResult.config.value);
+  let config = jobResult.config.value;
   let startTime = jobResult.startTime
     ? new Date(jobResult.startTime.value)
     : undefined;
