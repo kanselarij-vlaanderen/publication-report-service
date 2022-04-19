@@ -181,7 +181,9 @@ ${decisionDateEnd ? `FILTER (?decisionDate < ${decisionDateEnd})` : ``}
     let _governmentDomain = governmentDomain.map((uri) => sparqlEscapeUri(uri));
     return `
 VALUES ?governmentDomain { ${ _governmentDomain.join('\n') } }
-?case ext:beleidsgebied ?governmentDomain .
+?publicationFlow dossier:behandelt ?case .
+?case a dossier:Dossier ;
+  ext:beleidsgebied ?governmentDomain .
 ?governmentDomain a skos:Concept ;
   skos:inScheme <http://themis.vlaanderen.be/id/concept-schema/f4981a92-8639-4da4-b1e3-0e1371feaa81> .
 `;
