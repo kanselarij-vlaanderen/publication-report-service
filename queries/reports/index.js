@@ -208,5 +208,25 @@ ${decisionDateEnd ? `FILTER (?decisionDate < ${decisionDateEnd})` : ``}
   }
 }
 `;
+  },
+  mandatee(params) {
+    let mandatee = params.filter.mandatee;
+    if (!mandatee) {
+      return ``;
+    }
+
+    let _person = mandatee.map((mandatee) => sparqlEscapeUri(mandatee.person));
+    return `
+{
+  SELECT DISTINCT ?publicationFlow WHERE {
+    VALUES ?person { ${_person} }
+    ?publicationFlow a pub:Publicatieaangelegenheid ;
+      ext:heeftBevoegdeVoorPublicatie ?mandatee .
+    ?mandatee a mandaat:Mandataris ;
+      mandaat:isBestuurlijkeAliasVan ?person .
+    ?person a person:Person .
   }
+}
+`;
+  },
 };
