@@ -167,7 +167,7 @@ ${decisionDateEnd ? `FILTER (?decisionDate < ${decisionDateEnd})` : ``}
       ?case dossier:doorloopt ?subcase .
       ?subcase a dossier:Procedurestap .
     }
-    FILTER (BOUND(?subcase) = ${isViaCouncilOfMinisters ? `TRUE` : `FALSE` })
+    FILTER (BOUND(?subcase) = ${isViaCouncilOfMinisters ? `TRUE` : `FALSE`})
   }
 }
 `;
