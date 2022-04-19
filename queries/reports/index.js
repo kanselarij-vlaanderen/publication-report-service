@@ -32,6 +32,7 @@ WHERE {
   ${Filters.decisionDate(params)}
   ${Filters.isViaCouncilOfMinisters(params)}
   ${Filters.governmentDomain(params)}
+  ${Filters.regulationType(params)}
 }
 GROUP BY ?group
 ORDER BY ?group
@@ -183,6 +184,19 @@ VALUES ?governmentDomain { ${ _governmentDomain.join('\n') } }
 ?case ext:beleidsgebied ?governmentDomain .
 ?governmentDomain a skos:Concept ;
   skos:inScheme <http://themis.vlaanderen.be/id/concept-schema/f4981a92-8639-4da4-b1e3-0e1371feaa81> .
+`;
+  },
+  regulationType(params) {
+    let regulationType = params.filter.regulationType;
+    if (!regulationType) {
+      return ``;
+    }
+
+    let _regulationType = regulationType.map((uri) => sparqlEscapeUri(uri));
+    return `
+VALUES ?regulationType { ${ _regulationType.join('\n') } }
+?publicationFlow pub:regelgevingType ?regulationType .
+?regulationType a ext:RegelgevingType .
 `;
   }
 };
