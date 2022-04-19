@@ -1,7 +1,9 @@
+/* eslint-disable prettier/prettier */ // keep interpolated SPARQL strings clear
+import { sparqlEscapeDate } from 'mu';
+
 export function build(params) {
   let group = groups[params.group];
 
-  /* eslint-disable prettier/prettier */
   return `
 PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX dossier: <https://data.vlaanderen.be/ns/dossier#>
@@ -26,20 +28,14 @@ WHERE {
 
   OPTIONAL { ?publicationFlow fabio:hasPageCount ?numberOfPages . }
 
-  # # Filter op publicatiedatum
-  # ?publicationFlow pub:doorlooptPublicatie / ^pub:publicatieVindtPlaatsTijdens / prov:generated ?decision .
-  # ?decision eli:date_publication ?publicationDate .
-  # FILTER(?publicationDate > "2018-01-01"^^xsd:date && ?publicationDate < "2019-01-01"^^xsd:date)
+  ${filters.publicationDate(params)}
+  ${filters.decisionDate(params)}
+  ${filters.isViaCouncilOfMinisters(params)}
 
-  # # Filter op beslissingsdatum
-  # ?publicationFlow dct:subject ?decisionActivity .
-  # ?decisionActivity dossier:Activiteit.startdatum ?decisionDate .
-  # FILTER(?decisionDate > "2018-01-01"^^xsd:date && ?decisionDate < "2019-01-01"^^xsd:date)
 }
 GROUP BY ?group
 ORDER BY ?group
   `;
-  /* eslint-enable */
 }
 
 const groups = {
@@ -99,4 +95,79 @@ WHERE {
 `;
     },
   },
+};
+
+const filters = {
+  publicationDate(params) {
+    let publicationDateRange = params.filter.publicationDate ?? [null, null];
+    let hasFilter = publicationDateRange.some((date) => date);
+    if (!hasFilter) {
+      return ``;
+    }
+
+    let [publicationDateStart, publicationDateEnd] = publicationDateRange.map(
+      (date) => (date ? sparqlEscapeDate(date) : null)
+    );
+    return `
+{
+  SELECT
+    ?publicationFlow
+    (MIN(?publicationDate) AS ?minPublicationDate)
+  WHERE {
+    ?publicationFlow a pub:Publicatieaangelegenheid ;
+      pub:doorlooptPublicatie ?publicationSubcase .
+    ?publicationActivity pub:publicatieVindtPlaatsTijdens ?publicationSubcase .
+    ?publicationActivity a pub:PublicatieActiviteit ;
+      prov:generated ?decision .
+    ?decision a eli:LegalResource;
+      eli:date_publication ?publicationDate .
+  }
+}
+
+${publicationDateStart ? `FILTER (?minPublicationDate >= ${publicationDateStart})` : ``}
+${publicationDateEnd ? `FILTER (?minPublicationDate < ${publicationDateEnd})` : ``}
+`;
+  },
+  decisionDate(params) {
+    let decisionDateRange = params.filter.decisionDate ?? [null, null];
+    let hasFilter = decisionDateRange.some((date) => date);
+    if (!hasFilter) {
+      return ``;
+    }
+
+    let [decisionDateStart, decisionDateEnd] = decisionDateRange.map((date) =>
+      date ? sparqlEscapeDate(date) : null
+    );
+
+    return `
+?publicationFlow dct:subject ?decisionActivity .
+?decisionActivity dossier:Activiteit.startdatum ?decisionDate .
+${decisionDateStart ? `FILTER (?decisionDate > ${decisionDateStart})` : ``}
+${decisionDateEnd ? `FILTER (?decisionDate < ${decisionDateEnd})` : ``}
+`;
+  },
+  isViaCouncilOfMinisters(params) {
+    let isViaCouncilOfMinisters = params.filter.isViaCouncilOfMinisters;
+    if (isViaCouncilOfMinisters === null) {
+      return ``;
+    }
+
+    return `
+{
+  SELECT DISTINCT
+   ?publicationFlow
+  WHERE {
+    ?publicationFlow a pub:Publicatieaangelegenheid ;
+      dossier:behandelt ?case .
+    ?case a dossier:Dossier .
+    OPTIONAL {
+      ?case dossier:doorloopt ?subcase .
+      ?subcase a dossier:Procedurestap .
+    }
+    FILTER (BOUND(?subcase) = ${isViaCouncilOfMinisters ? `TRUE` : `FALSE` })
+  }
+}
+`;
+
+  }
 };
