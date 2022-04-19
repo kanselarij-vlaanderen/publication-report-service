@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */ // keep interpolated SPARQL strings clear
-import { sparqlEscapeDate } from 'mu';
+import { sparqlEscapeDate, sparqlEscapeUri } from 'mu';
 
 export function build(params) {
   let group = Groups[params.group];
@@ -31,6 +31,7 @@ WHERE {
   ${Filters.publicationDate(params)}
   ${Filters.decisionDate(params)}
   ${Filters.isViaCouncilOfMinisters(params)}
+  ${Filters.governmentDomain(params)}
 }
 GROUP BY ?group
 ORDER BY ?group
@@ -170,4 +171,18 @@ ${decisionDateEnd ? `FILTER (?decisionDate < ${decisionDateEnd})` : ``}
 }
 `;
   },
+  governmentDomain(params) {
+    let governmentDomain = params.filter.governmentDomain;
+    if (!governmentDomain) {
+      return ``;
+    }
+
+    let _governmentDomain = governmentDomain.map((uri) => sparqlEscapeUri(uri));
+    return `
+VALUES ?governmentDomain { ${ _governmentDomain.join('\n') } }
+?case ext:beleidsgebied ?governmentDomain .
+?governmentDomain a skos:Concept ;
+  skos:inScheme <http://themis.vlaanderen.be/id/concept-schema/f4981a92-8639-4da4-b1e3-0e1371feaa81> .
+`;
+  }
 };
