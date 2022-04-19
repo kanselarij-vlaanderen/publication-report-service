@@ -2,7 +2,7 @@
 import { sparqlEscapeDate } from 'mu';
 
 export function build(params) {
-  let group = groups[params.group];
+  let group = Groups[params.group];
 
   return `
 PREFIX dct: <http://purl.org/dc/terms/>
@@ -28,17 +28,16 @@ WHERE {
 
   OPTIONAL { ?publicationFlow fabio:hasPageCount ?numberOfPages . }
 
-  ${filters.publicationDate(params)}
-  ${filters.decisionDate(params)}
-  ${filters.isViaCouncilOfMinisters(params)}
-
+  ${Filters.publicationDate(params)}
+  ${Filters.decisionDate(params)}
+  ${Filters.isViaCouncilOfMinisters(params)}
 }
 GROUP BY ?group
 ORDER BY ?group
   `;
 }
 
-const groups = {
+const Groups = {
   'government-domain': {
     name: 'Beleidsdomeinen',
     subselect(params) {
@@ -85,7 +84,9 @@ WHERE {
     name: 'Type_regelgeving',
     subselect(params) {
       return `
-SELECT DISTINCT ?publicationFlow (?regulationTypeLabel As ?group)
+SELECT DISTINCT
+  ?publicationFlow
+  (?regulationTypeLabel As ?group)
 WHERE {
   ?publicationFlow a pub:Publicatieaangelegenheid ;
     pub:regelgevingType ?regulationType .
@@ -97,7 +98,7 @@ WHERE {
   },
 };
 
-const filters = {
+const Filters = {
   publicationDate(params) {
     let publicationDateRange = params.filter.publicationDate ?? [null, null];
     let hasFilter = publicationDateRange.some((date) => date);
@@ -168,6 +169,5 @@ ${decisionDateEnd ? `FILTER (?decisionDate < ${decisionDateEnd})` : ``}
   }
 }
 `;
-
-  }
+  },
 };
