@@ -180,12 +180,16 @@ ${decisionDateEnd ? `FILTER (?decisionDate < ${decisionDateEnd})` : ``}
 
     let _governmentDomain = governmentDomain.map((uri) => sparqlEscapeUri(uri));
     return `
-VALUES ?governmentDomain { ${ _governmentDomain.join('\n') } }
-?publicationFlow dossier:behandelt ?case .
-?case a dossier:Dossier ;
-  ext:beleidsgebied ?governmentDomain .
-?governmentDomain a skos:Concept ;
-  skos:inScheme <http://themis.vlaanderen.be/id/concept-schema/f4981a92-8639-4da4-b1e3-0e1371feaa81> .
+{
+  SELECT DISTINCT ?publicationFlow WHERE {
+    VALUES ?governmentDomain { ${ _governmentDomain.join('\n') } }
+    ?publicationFlow dossier:behandelt ?case .
+    ?case a dossier:Dossier ;
+      ext:beleidsgebied ?governmentDomain .
+    ?governmentDomain a skos:Concept ;
+      skos:inScheme <http://themis.vlaanderen.be/id/concept-schema/f4981a92-8639-4da4-b1e3-0e1371feaa81> .
+  }
+}
 `;
   },
   regulationType(params) {
@@ -196,9 +200,13 @@ VALUES ?governmentDomain { ${ _governmentDomain.join('\n') } }
 
     let _regulationType = regulationType.map((uri) => sparqlEscapeUri(uri));
     return `
-VALUES ?regulationType { ${ _regulationType.join('\n') } }
-?publicationFlow pub:regelgevingType ?regulationType .
-?regulationType a ext:RegelgevingType .
+{
+  SELECT DISTINCT ?publicationFlow WHERE {
+    VALUES ?regulationType { ${ _regulationType.join('\n') } }
+    ?publicationFlow pub:regelgevingType ?regulationType .
+    ?regulationType a ext:RegelgevingType .
+  }
+}
 `;
   }
 };
