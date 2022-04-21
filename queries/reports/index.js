@@ -145,7 +145,7 @@ ${publicationDateEnd ? `FILTER (?minPublicationDate < ${publicationDateEnd})` : 
     return `
 ?publicationFlow dct:subject ?decisionActivity .
 ?decisionActivity dossier:Activiteit.startdatum ?decisionDate .
-${decisionDateStart ? `FILTER (?decisionDate > ${decisionDateStart})` : ``}
+${decisionDateStart ? `FILTER (?decisionDate >= ${decisionDateStart})` : ``}
 ${decisionDateEnd ? `FILTER (?decisionDate < ${decisionDateEnd})` : ``}
 `;
   },
