@@ -1,5 +1,16 @@
-import { app } from 'mu';
+import * as Express from 'express';
+import Mu from 'mu';
+import * as JobRunner from './lib/job-runner.js';
+import * as DownloadJob from './lib/download-job.js';
+import * as Delta from './lib/delta.js';
 
-app.get('/', function (req, res) {
-  res.send('Publication Reports Service says: "Hello world!"');
+Mu.app.post('/delta', Express.json(), async function (req, res) {
+  res.sendStatus(202);
+
+  let deltas = req.body;
+  let newJobUris = Delta.filterInsertedJobUris(deltas);
+
+  for (let jobUri of newJobUris) {
+    JobRunner.run(jobUri, DownloadJob);
+  }
 });

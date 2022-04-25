@@ -1,6 +1,10 @@
 // .cjs extension: with .js eslint expects does not support import syntax
 module.exports = {
   root: true,
+  parserOptions: {
+    sourceType: 'module',
+    ecmaVersion: 2020,
+  },
   plugins: ['node'],
   extends: [
     'eslint:recommended',
@@ -8,7 +12,9 @@ module.exports = {
     'plugin:prettier/recommended',
   ],
   rules: {
-    'prettier/prettier': 'error',
-    'node/no-missing-import': 'off', // quick fix to allow mu modules
+    'prettier/prettier': 'warn',
+    // quick fixes to allow mu modules
+    'node/no-extraneous-import': 'off',
+    'node/no-missing-import': 'off',
   },
 };
