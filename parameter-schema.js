@@ -7,19 +7,14 @@
 // (if you're familiar with OpenAPI: it uses JSON Schema for its request bodies)
 // The schema is used together with the library Ajv (which seems the goto)
 //    -> see: https://ajv.js.org/guide/getting-started.html
-// 2 extra validations* are added:
-// see ./lib/json-schema.js
-// - parse: validates and parses the JSON strings into JS Dates
-// - dateRange: checks whether the date range is valid
-//    - start date < end date
-//    - a start date is required
 // I could have used JSON, but JS seems a little easier for development
 
 // How it works:
 // validations are triggered based on the keys of the schema object e.g. type, properties,...: each key represents a validation check
 // the keys values are the validation's parameters
+// a schema can contain subschema's: as a value of the properties validation (for objects) and as value of the items key for array
 
-const METRICS_GROUPS = ['government-domain', 'regulation-type', 'mandatee'];
+const METRICS_GROUPS = ['governmentDomains', 'regulationType', 'mandateePersons'];
 
 export default {
   type: 'object',
@@ -45,22 +40,20 @@ export default {
               type: 'array',
               minItems: 2,
               maxItems: 2,
-              range: {
-                required: [true, false],
-              },
               items: {
-                parse: 'date',
+                type: 'string',
+                format: 'date-time',
+                nullable: true,
               },
             },
             decisionDate: {
               type: 'array',
               minItems: 2,
               maxItems: 2,
-              range: {
-                required: [true, false],
-              },
               items: {
-                parse: 'date',
+                type: 'string',
+                format: 'date-time',
+                nullable: true,
               },
             },
             isViaCouncilOfMinisters: {
@@ -74,24 +67,18 @@ export default {
                 format: 'uri',
               },
             },
-            governmentDomain: {
+            governmentDomains: {
               type: 'array',
               items: {
                 type: 'string',
                 format: 'uri',
               },
             },
-            mandatee: {
+            mandateePersons: {
               type: 'array',
               items: {
-                type: 'object',
-                additionalProperties: false,
-                properties: {
-                  person: {
-                    type: 'string',
-                    format: 'uri',
-                  },
-                },
+                type: 'string',
+                format: 'uri',
               },
             },
           },

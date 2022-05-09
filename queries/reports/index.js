@@ -1,8 +1,10 @@
 /* eslint-disable prettier/prettier */ // keep interpolated SPARQL strings clear
-import { sparqlEscapeDate, sparqlEscapeUri } from 'mu';
+import * as Groups from './groups.js';
+import * as Filters from './filters.js';
 
-export function build(params) {
-  let group = Groups[params.group];
+/// TODO: queries should not be built dynamically
+export function build(queryParams) {
+  let group = Groups.get(queryParams.group);
 
   return `
 PREFIX dct: <http://purl.org/dc/terms/>
@@ -23,210 +25,21 @@ SELECT
   (?group AS ?${group.name})
   (SUM(?numberOfPages) AS ?Aantal_bladzijden)
   (COUNT(DISTINCT ?publicationFlow) AS ?Aantal_publicaties)
+FROM <http://mu.semte.ch/graphs/organizations/kanselarij>
+FROM NAMED <http://mu.semte.ch/graphs/public>
 WHERE {
-  { ${group.subselect(params)} }
+  { ${group.subselect(queryParams)} }
 
   OPTIONAL { ?publicationFlow fabio:hasPageCount ?numberOfPages . }
 
-  ${Filters.publicationDate(params)}
-  ${Filters.decisionDate(params)}
-  ${Filters.isViaCouncilOfMinisters(params)}
-  ${Filters.governmentDomain(params)}
-  ${Filters.regulationType(params)}
+  ${Filters.publicationDate(queryParams)}
+  ${Filters.decisionDate(queryParams)}
+  ${Filters.isViaCouncilOfMinisters(queryParams)}
+  ${Filters.governmentDomains(queryParams)}
+  ${Filters.regulationType(queryParams)}
+  ${Filters.mandateePersons(queryParams)}
 }
 GROUP BY ?group
 ORDER BY ?group
   `;
 }
-
-const Groups = {
-  'government-domain': {
-    name: 'Beleidsdomeinen',
-    subselect(params) {
-      return `
-SELECT DISTINCT
-  ?publicationFlow
-  (GROUP_CONCAT(?policyDomainLabel; SEPARATOR='/') AS ?group)
-WHERE {
-  ?publicationFlow
-    a pub:Publicatieaangelegenheid ;
-    dossier:behandelt ?case.
-  ?case
-    a dossier:Dossier .
-  OPTIONAL {
-    ?case ext:beleidsgebied ?policyDomain .
-    ?policyDomain
-      a skos:Concept ;
-      skos:prefLabel ?policyDomainLabel ;
-      skos:inScheme <http://themis.vlaanderen.be/id/concept-schema/f4981a92-8639-4da4-b1e3-0e1371feaa81> . # policy domains
-  }
-}
-`;
-    },
-  },
-  mandatee: {
-    name: 'Ministers',
-    subselect(params) {
-      return `
-SELECT DISTINCT
-  ?publicationFlow
-  (GROUP_CONCAT(DISTINCT ?familyName, "/") AS ?group)
-WHERE {
-  ?publicationFlow a pub:Publicatieaangelegenheid ;
-    ext:heeftBevoegdeVoorPublicatie ?mandatee .
-  ?mandatee a mandaat:Mandataris ;
-    mandaat:isBestuurlijkeAliasVan ?person .
-  ?person a person:Person ;
-    foaf:familyName ?familyName .
-}
-`;
-    },
-  },
-  'regulation-type': {
-    name: 'Type_regelgeving',
-    subselect(params) {
-      return `
-SELECT DISTINCT
-  ?publicationFlow
-  (?regulationTypeLabel As ?group)
-WHERE {
-  ?publicationFlow a pub:Publicatieaangelegenheid ;
-    pub:regelgevingType ?regulationType .
-  ?regulationType a ext:RegelgevingType ;
-    skos:prefLabel ?regulationTypeLabel .
-}
-`;
-    },
-  },
-};
-
-const Filters = {
-  publicationDate(params) {
-    let publicationDateRange = params.filter.publicationDate ?? [null, null];
-    let hasFilter = publicationDateRange.some((date) => date);
-    if (!hasFilter) {
-      return ``;
-    }
-
-    let [publicationDateStart, publicationDateEnd] = publicationDateRange.map(
-      (date) => (date ? sparqlEscapeDate(date) : null)
-    );
-    return `
-{
-  SELECT
-    ?publicationFlow
-    (MIN(?publicationDate) AS ?minPublicationDate)
-  WHERE {
-    ?publicationFlow a pub:Publicatieaangelegenheid ;
-      pub:doorlooptPublicatie ?publicationSubcase .
-    ?publicationActivity pub:publicatieVindtPlaatsTijdens ?publicationSubcase .
-    ?publicationActivity a pub:PublicatieActiviteit ;
-      prov:generated ?decision .
-    ?decision a eli:LegalResource;
-      eli:date_publication ?publicationDate .
-  }
-}
-
-${publicationDateStart ? `FILTER (?minPublicationDate >= ${publicationDateStart})` : ``}
-${publicationDateEnd ? `FILTER (?minPublicationDate < ${publicationDateEnd})` : ``}
-`;
-  },
-  decisionDate(params) {
-    let decisionDateRange = params.filter.decisionDate ?? [null, null];
-    let hasFilter = decisionDateRange.some((date) => date);
-    if (!hasFilter) {
-      return ``;
-    }
-
-    let [decisionDateStart, decisionDateEnd] = decisionDateRange.map((date) =>
-      date ? sparqlEscapeDate(date) : null
-    );
-
-    return `
-?publicationFlow dct:subject ?decisionActivity .
-?decisionActivity dossier:Activiteit.startdatum ?decisionDate .
-${decisionDateStart ? `FILTER (?decisionDate >= ${decisionDateStart})` : ``}
-${decisionDateEnd ? `FILTER (?decisionDate < ${decisionDateEnd})` : ``}
-`;
-  },
-  isViaCouncilOfMinisters(params) {
-    let isViaCouncilOfMinisters = params.filter.isViaCouncilOfMinisters;
-    if (isViaCouncilOfMinisters === null) {
-      return ``;
-    }
-
-    return `
-{
-  SELECT DISTINCT
-   ?publicationFlow
-  WHERE {
-    ?publicationFlow a pub:Publicatieaangelegenheid ;
-      dossier:behandelt ?case .
-    ?case a dossier:Dossier .
-    OPTIONAL {
-      ?case dossier:doorloopt ?subcase .
-      ?subcase a dossier:Procedurestap .
-    }
-    FILTER (BOUND(?subcase) = ${isViaCouncilOfMinisters ? `TRUE` : `FALSE`})
-  }
-}
-`;
-  },
-  governmentDomain(params) {
-    let governmentDomain = params.filter.governmentDomain;
-    if (!governmentDomain) {
-      return ``;
-    }
-
-    let _governmentDomain = governmentDomain.map((uri) => sparqlEscapeUri(uri));
-    return `
-{
-  SELECT DISTINCT ?publicationFlow WHERE {
-    VALUES ?governmentDomain { ${ _governmentDomain.join('\n') } }
-    ?publicationFlow dossier:behandelt ?case .
-    ?case a dossier:Dossier ;
-      ext:beleidsgebied ?governmentDomain .
-    ?governmentDomain a skos:Concept ;
-      skos:inScheme <http://themis.vlaanderen.be/id/concept-schema/f4981a92-8639-4da4-b1e3-0e1371feaa81> .
-  }
-}
-`;
-  },
-  regulationType(params) {
-    let regulationType = params.filter.regulationType;
-    if (!regulationType) {
-      return ``;
-    }
-
-    let _regulationType = regulationType.map((uri) => sparqlEscapeUri(uri));
-    return `
-{
-  SELECT DISTINCT ?publicationFlow WHERE {
-    VALUES ?regulationType { ${ _regulationType.join('\n') } }
-    ?publicationFlow pub:regelgevingType ?regulationType .
-    ?regulationType a ext:RegelgevingType .
-  }
-}
-`;
-  },
-  mandatee(params) {
-    let mandatee = params.filter.mandatee;
-    if (!mandatee) {
-      return ``;
-    }
-
-    let _person = mandatee.map((mandatee) => sparqlEscapeUri(mandatee.person));
-    return `
-{
-  SELECT DISTINCT ?publicationFlow WHERE {
-    VALUES ?person { ${_person} }
-    ?publicationFlow a pub:Publicatieaangelegenheid ;
-      ext:heeftBevoegdeVoorPublicatie ?mandatee .
-    ?mandatee a mandaat:Mandataris ;
-      mandaat:isBestuurlijkeAliasVan ?person .
-    ?person a person:Person .
-  }
-}
-`;
-  },
-};
