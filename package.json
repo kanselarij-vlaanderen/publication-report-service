@@ -1,7 +1,7 @@
 {
   "name": "publication-report-service",
   "description": "Generate CSV reports to monitor the publication process",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "licence": "MIT",
   "//": "type=module: IDE support for `import`",
   "type": "module",

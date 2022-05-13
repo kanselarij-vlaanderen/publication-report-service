@@ -76,13 +76,13 @@ trigger:
 ---
 kind: secret
 name: docker_username
-data: TODO
+data: MiTbpN/z/E/tgDUzrnLDOX0islhPFamVebhbLkAMddIjMc6n0L9Dl1i+SgS3
 ---
 kind: secret
 name: docker_password
-data: TODO
+data: 6fnTDWBrIXYgk8NmZsixxclOxe3e1Lq1mkvCV9mzVGHWPV8vQq5hLC5wO1NV/Jghkfo2Th0BsaN+HMSJ1D3DjA==
 ---
 kind: signature
-hmac: TODO
+hmac: e6f9523790e87079cb9cdc2849e97c72abcdd4988c17254243aa639c50c7a391
 
 ...
