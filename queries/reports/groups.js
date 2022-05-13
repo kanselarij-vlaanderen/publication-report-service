@@ -77,11 +77,12 @@ ORDER BY ?group
   },
 };
 
+
 export function get(groupName) {
-  const mapping = {
-    'governmentDomains': GovernmentDomains,
-    'regulationType': RegulationType,
-    'mandateePersons': MandateePersons,
+  const MAPPING = {
+    governmentDomains: GovernmentDomains,
+    regulationType: RegulationType,
+    mandateePersons: MandateePersons,
   };
-  return mapping[groupName];
+  return MAPPING[groupName];
 }

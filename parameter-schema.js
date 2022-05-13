@@ -14,15 +14,16 @@
 // the keys values are the validation's parameters
 // a schema can contain subschema's: as a value of the properties validation (for objects) and as value of the items key for array
 
-const METRICS_GROUPS = ['governmentDomains', 'regulationType', 'mandateePersons'];
+const METRICS_GROUPS = [
+  'governmentDomains',
+  'regulationType',
+  'mandateePersons',
+];
 
 export default {
   type: 'object',
   additionalProperties: false,
   properties: {
-    name: {
-      type: 'string',
-    },
     query: {
       type: 'object',
       required: ['group', 'filter'],

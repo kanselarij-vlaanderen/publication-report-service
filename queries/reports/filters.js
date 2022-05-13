@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { sparqlEscapeDate, sparqlEscapeUri } from 'mu';
+import { sparqlEscapeDate, sparqlEscapeUri } from 'mu'; // eslint-disable-line
 import { sparqlEscapeDateLocal } from '../utils.js';
 
 export function publicationDate(params) {
