@@ -15,6 +15,8 @@
     "@lblod/mu-auth-sudo": "~0.5.1",
     "ajv": "~8.11.0",
     "ajv-formats": "~2.1.1",
+    "ember-cli-string-utils": "~1.1.0",
+    "moment": "~2.29.3",
     "node-fetch": "~2.6.7",
     "sanitize-filename": "~1.6.3"
   },

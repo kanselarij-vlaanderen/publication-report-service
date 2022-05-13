@@ -15,6 +15,7 @@ WHERE {
   ${_jobUri} a pub:PublicationMetricsExportJob .
   ${_jobUri} dct:created ?createdTime .
   ${_jobUri} pub:exportJobConfig ?config .
+  ${_jobUri} dct:type ?reportTypeUri .
   OPTIONAL { ${_jobUri} ext:status ?statusUri . }
   OPTIONAL { ${_jobUri} prov:startedAtTime ?startTime . }
   OPTIONAL { ${_jobUri} prov:endedAtTime ?endTime . }
@@ -39,6 +40,7 @@ export function parseGet(data) {
 
   return {
     createdTime: createdTime,
+    reportTypeUri: jobResult.reportTypeUri.value,
     config: config,
     statusUri: jobResult.statusUri?.value,
     startTime: startTime,
