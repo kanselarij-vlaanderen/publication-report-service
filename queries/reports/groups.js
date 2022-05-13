@@ -57,7 +57,7 @@ const MandateePersons = {
     return `
 SELECT
   ?publicationFlow
-  (GROUP_CONCAT(?familyNameFallback, '/') AS ?group)
+  (GROUP_CONCAT(?familyNameFallback, '/' ) AS ?group)
 WHERE {
   ?publicationFlow a pub:Publicatieaangelegenheid .
   OPTIONAL {

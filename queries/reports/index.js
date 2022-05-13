@@ -2,9 +2,9 @@
 import * as Groups from './groups.js';
 import * as Filters from './filters.js';
 
-/// TODO: queries should not be built dynamically
-export function build(queryParams) {
-  let group = Groups.get(queryParams.group);
+/** @see {../../doc/types.md} for documentation of query param combinations in use in the frontend */
+export function build(params) {
+  let group = Groups.get(params.group);
 
   return `
 PREFIX dct: <http://purl.org/dc/terms/>
@@ -28,18 +28,18 @@ SELECT
 FROM <http://mu.semte.ch/graphs/organizations/kanselarij>
 FROM NAMED <http://mu.semte.ch/graphs/public>
 WHERE {
-  { ${group.subselect(queryParams)} }
+  { ${group.subselect(params)} }
 
   OPTIONAL { ?publicationFlow fabio:hasPageCount ?numberOfPages . }
 
-  ${Filters.publicationDate(queryParams)}
-  ${Filters.decisionDate(queryParams)}
-  ${Filters.isViaCouncilOfMinisters(queryParams)}
-  ${Filters.governmentDomains(queryParams)}
-  ${Filters.regulationType(queryParams)}
-  ${Filters.mandateePersons(queryParams)}
+  ${Filters.publicationDate(params)}
+  ${Filters.decisionDate(params)}
+  ${Filters.isViaCouncilOfMinisters(params)}
+  ${Filters.governmentDomains(params)}
+  ${Filters.regulationType(params)}
+  ${Filters.mandateePersons(params)}
 }
 GROUP BY ?group
 ORDER BY ?group
-  `;
+`;
 }

@@ -1,1 +1,1 @@
-FROM semtech/mu-javascript-template:1.4.0
+FROM semtech/mu-javascript-template:1.6.0

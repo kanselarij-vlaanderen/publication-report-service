@@ -77,16 +77,16 @@ export function isViaCouncilOfMinisters(params) {
 };
 
 export function governmentDomains(params) {
-    let governmentDomain = params.filter.governmentDomains;
-    if (!governmentDomain) {
+    let governmentDomains = params.filter.governmentDomains;
+    if (!governmentDomains) {
       return ``;
     }
 
-    let _governmentDomain = governmentDomain.map((uri) => sparqlEscapeUri(uri));
+    let _governmentDomains = governmentDomains.map((uri) => sparqlEscapeUri(uri));
     return `
 {
   SELECT DISTINCT ?publicationFlow WHERE {
-    VALUES ?governmentDomain { ${ _governmentDomain.join('\n') } }
+    VALUES ?governmentDomain { ${ _governmentDomains.join('\n') } }
     ?publicationFlow dossier:behandelt ?case .
     ?case a dossier:Dossier ;
       ext:beleidsgebied ?governmentDomain .
@@ -100,16 +100,16 @@ export function governmentDomains(params) {
 }
 
 export function regulationType(params) {
-    let regulationType = params.filter.regulationType;
-    if (!regulationType) {
+    let regulationTypes = params.filter.regulationType;
+    if (!regulationTypes) {
       return ``;
     }
 
-    let _regulationType = regulationType.map((uri) => sparqlEscapeUri(uri));
+    let _regulationTypes = regulationTypes.map((uri) => sparqlEscapeUri(uri));
     return `
 {
   SELECT DISTINCT ?publicationFlow WHERE {
-    VALUES ?regulationType { ${ _regulationType.join('\n') } }
+    VALUES ?regulationType { ${ _regulationTypes.join('\n') } }
     ?publicationFlow pub:regelgevingType ?regulationType .
     GRAPH <http://mu.semte.ch/graphs/public> {
       ?regulationType a ext:RegelgevingType .
@@ -120,16 +120,16 @@ export function regulationType(params) {
 }
 
 export function mandateePersons(params) {
-    let mandatee = params.filter.mandateePersons;
-    if (!mandatee) {
+    let mandateePersons = params.filter.mandateePersons;
+    if (!mandateePersons) {
       return ``;
     }
 
-    let _person = mandatee.map((mandatee) => sparqlEscapeUri(mandatee));
+    let _mandateePersons = mandateePersons.map((mandatee) => sparqlEscapeUri(mandatee));
     return `
 {
   SELECT DISTINCT ?publicationFlow WHERE {
-    VALUES ?person { ${_person.join('\n')} }
+    VALUES ?person { ${_mandateePersons.join('\n')} }
     ?publicationFlow a pub:Publicatieaangelegenheid ;
       ext:heeftBevoegdeVoorPublicatie ?mandatee .
     GRAPH <http://mu.semte.ch/graphs/public> {
