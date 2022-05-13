@@ -1,7 +1,3 @@
-<div style="text-align: center; font-size: 20px; background-color: #ffeeaa;">
-🚧 Under development 🚧
-</div>
-
 # Publication Report Service
 Microservice that exports reports about the number of processed publication-flows as CSV files.
 The service is triggered by the notification of the creation of a `pub:PublicationMetricsExportJob` by the deltanotifier service. The file is downloaded to the server.

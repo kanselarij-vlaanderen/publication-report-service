@@ -5,9 +5,6 @@
   "licence": "MIT",
   "//": "type=module: IDE support for `import`",
   "type": "module",
-  "engines": {
-    "node": "12.16.1"
-  },
   "// note: depencencies": {
     "node-fetch": "< 3: version 3 requires esmodules"
   },
