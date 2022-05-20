@@ -9,7 +9,7 @@ import * as Delta from './lib/delta.js';
  * 1. frontend saves a PublicationMetricsExportJob in the database
  * 2. delta-notifier sends a notification to this service
  * 3. publication-report-service comes in action:
- *    flow: (based on the file-bundling-service @see https://github.com/kanselarij-vlaanderen/file-bundling-service}
+ *    flow: (based on the file-bundling-service @see https://github.com/kanselarij-vlaanderen/file-bundling-service)
  *    1. /delta endpoint picks up notification @see file://./lib/delta.js
  *    2. JobRunner sets status to Running and runs DownloadJob @see file://./lib/job-runner.js
  *    3. DownloadJob runs @see file://./lib/download-job.js

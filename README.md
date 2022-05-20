@@ -74,10 +74,19 @@ The following environment variables can be configured:
 * `MU_SPARQL_ENDPOINT` (default: http://database:8890/sparql): SPARQL endpoint of the internal triple store to read and write file and job records.
 * `VIRTUOSO_SPARQL_ENDPOINT` (default: http://virtuoso:8890/sparql): SPARQL endpoint of the Virtuoso triple store, in order to download the csv files.
 
+### Job model
+The Job Model is defined in: [app-kaleidos /config/resources/job-domain.lisp](https://github.com/kanselarij-vlaanderen/app-kaleidos/blob/development/config/resources/job-domain.lisp)
+
+### Rapport types
+The PublicatieRapportTypes Model is defined in: [app-kaleidos /config/resources/job-domain.lisp](https://github.com/kanselarij-vlaanderen/app-kaleidos/blob/development/config/resources/job-domain.lisp)
+The PublicatieRapportTypes code list is declared in: [app-kaleidos /config/migrations/20220511133621-add-publication-report-types.ttl](https://github.com/kanselarij-vlaanderen/app-kaleidos/blob/development/config/migrations/20220511133621-add-publication-report-types.ttl)
+For more information about the filters an of the PublicatieRapportTypes see: [doc/report-types.md](./doc/report-types.md)
+
 ### Job parameters
 The parameters are passed as a JSON object. The schema for this object can be found at [parameter-schema.js](./parameter-schema.js).
 
 An example using all filter parameters:
+Note it is not expected the service will be called this way. For the combinations of query options in use see [./doc/report-types.md](./doc/report-types.md))
 ```javascript
   let jobParams = {
     name: 'Publicatierapport',

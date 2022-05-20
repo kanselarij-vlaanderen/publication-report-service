@@ -1,4 +1,6 @@
-# Scope of this document
+# Publication report types
+
+## Scope of this document
 The service is currently conceived in such a way to allow any combination of filters options with any of the types to group by.
 However the UI bundles 6 of these combinations as PublicationReportTypes. This document describes the matching filter options and group option by for each PublciationReportType.
 Because a change might be required that restricts the combinations, this document documents the combinations in use by the frontend. When we choose a less dynamic approach, it might be useful to consider grouping and preset filters can be moved to SPARQL directly.
