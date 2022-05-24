@@ -1,3 +1,4 @@
+// fragments included in SPARQL query built in index.js
 const GovernmentDomains = {
   name: 'Beleidsdomeinen',
   subselect() {

@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+// fragments included in SPARQL query built in index.js
 import { sparqlEscapeDate, sparqlEscapeUri } from 'mu'; // eslint-disable-line
 import { sparqlEscapeDateLocal } from '../utils.js';
 
