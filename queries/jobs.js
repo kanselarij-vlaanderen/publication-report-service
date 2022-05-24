@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { sparqlEscapeUri, sparqlEscapeDateTime } from 'mu';
 
 export function buildGet(jobUri) {
@@ -15,11 +16,13 @@ WHERE {
   ${_jobUri} a pub:PublicationMetricsExportJob .
   ${_jobUri} dct:created ?createdTime .
   ${_jobUri} pub:exportJobConfig ?config .
-  ${_jobUri} dct:type ?reportTypeUri .
+  ${/* Required relationship, but relations are added by mu-cl-resources in a different INSERT command. */ ''}
+  OPTIONAL { ${_jobUri} dct:type ?reportTypeUri . }
   OPTIONAL { ${_jobUri} ext:status ?statusUri . }
   OPTIONAL { ${_jobUri} prov:startedAtTime ?startTime . }
   OPTIONAL { ${_jobUri} prov:endedAtTime ?endTime . }
-  ${_jobUri} prov:wasStartedBy ?userUri .
+  ${/* Required relationship, but relations are added by mu-cl-resources in a different INSERT command. */ ''}
+  OPTIONAL { ${_jobUri} prov:wasStartedBy ?userUri . }
   OPTIONAL { ${_jobUri} prov:generated ?fileUri . }
 }
 `;
@@ -40,12 +43,12 @@ export function parseGet(data) {
 
   return {
     createdTime: createdTime,
-    reportTypeUri: jobResult.reportTypeUri.value,
+    reportTypeUri: jobResult.reportTypeUri?.value,
     config: config,
     statusUri: jobResult.statusUri?.value,
     startTime: startTime,
     endTime: endTime,
-    userUri: jobResult.userUri.value,
+    userUri: jobResult.userUri?.value,
     fileUri: jobResult.fileUri?.value,
   };
 }
