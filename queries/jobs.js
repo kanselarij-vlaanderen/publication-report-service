@@ -1,8 +1,13 @@
 /* eslint-disable prettier/prettier */
 import { sparqlEscapeUri, sparqlEscapeDateTime } from 'mu';
 
+/**
+ *
+ * @param {string?} jobUri if not provided: return all jobs
+ * @returns
+ */
 export function buildGet(jobUri) {
-  let _jobUri = sparqlEscapeUri(jobUri);
+  let _jobUri = jobUri !== undefined ? sparqlEscapeUri(jobUri) : undefined;
 
   return `
 PREFIX cogs: <http://vocab.deri.ie/cogs#>
@@ -13,44 +18,47 @@ PREFIX pub: <http://mu.semte.ch/vocabularies/ext/publicatie/>
 
 SELECT *
 WHERE {
-  ${_jobUri} a pub:PublicationMetricsExportJob .
-  ${_jobUri} dct:created ?createdTime .
-  ${_jobUri} pub:exportJobConfig ?config .
+  ${_jobUri ? `VALUES ?jobUri { ${_jobUri} }`: ''}
+
+  ?jobUri a pub:PublicationMetricsExportJob .
+  ?jobUri dct:created ?createdTime .
+  ?jobUri pub:exportJobConfig ?config .
   ${/* Required relationship, but relations are added by mu-cl-resources in a different INSERT command. */ ''}
-  OPTIONAL { ${_jobUri} dct:type ?reportTypeUri . }
-  OPTIONAL { ${_jobUri} ext:status ?statusUri . }
-  OPTIONAL { ${_jobUri} prov:startedAtTime ?startTime . }
-  OPTIONAL { ${_jobUri} prov:endedAtTime ?endTime . }
+  OPTIONAL { ?jobUri dct:type ?reportTypeUri . }
+  OPTIONAL { ?jobUri ext:status ?statusUri . }
+  OPTIONAL { ?jobUri prov:startedAtTime ?startTime . }
+  OPTIONAL { ?jobUri prov:endedAtTime ?endTime . }
   ${/* Required relationship, but relations are added by mu-cl-resources in a different INSERT command. */ ''}
-  OPTIONAL { ${_jobUri} prov:wasStartedBy ?userUri . }
-  OPTIONAL { ${_jobUri} prov:generated ?fileUri . }
+  OPTIONAL { ?jobUri prov:wasStartedBy ?userUri . }
+  OPTIONAL { ?jobUri prov:generated ?fileUri . }
 }
 `;
 }
 
 /** @typedef {ReturnType<parseGet>} Job */
 export function parseGet(data) {
-  let jobResult = data.results.bindings[0];
+  let jobRecords = data.results.bindings.map((jobResult) => {
+    let createdTime = new Date(jobResult.createdTime.value);
+    let config = jobResult.config.value;
+    let startTime = jobResult.startTime
+      ? new Date(jobResult.startTime.value)
+      : undefined;
+    let endTime = jobResult.endTime
+      ? new Date(jobResult.endTime.value)
+      : undefined;
 
-  let createdTime = new Date(jobResult.createdTime.value);
-  let config = jobResult.config.value;
-  let startTime = jobResult.startTime
-    ? new Date(jobResult.startTime.value)
-    : undefined;
-  let endTime = jobResult.endTime
-    ? new Date(jobResult.endTime.value)
-    : undefined;
-
-  return {
-    createdTime: createdTime,
-    reportTypeUri: jobResult.reportTypeUri?.value,
-    config: config,
-    statusUri: jobResult.statusUri?.value,
-    startTime: startTime,
-    endTime: endTime,
-    userUri: jobResult.userUri?.value,
-    fileUri: jobResult.fileUri?.value,
-  };
+    return {
+      createdTime: createdTime,
+      reportTypeUri: jobResult.reportTypeUri?.value,
+      config: config,
+      statusUri: jobResult.statusUri?.value,
+      startTime: startTime,
+      endTime: endTime,
+      userUri: jobResult.userUri?.value,
+      fileUri: jobResult.fileUri?.value,
+    };
+  });
+  return jobRecords;
 }
 
 export function updateStatusToRunning(jobUri, time) {

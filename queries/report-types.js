@@ -11,7 +11,7 @@ PREFIX mu: <http://mu.semte.ch/vocabularies/core/>
 
 SELECT *
 WHERE {
-  ${ reportTypeUri ? `VALUES ?uri { ${_reportTypeUri} }` : '' }
+  ${_reportTypeUri ? `VALUES ?uri { ${_reportTypeUri} }` : ''}
 
   ?uri a pub:Publicatierapporttype .
   ?uri mu:uuid ?uuid .
