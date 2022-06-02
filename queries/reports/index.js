@@ -23,14 +23,18 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT
   (?group AS ?${group.name})
-  (SUM(?numberOfPages) AS ?Aantal_bladzijden)
   (COUNT(DISTINCT ?publicationFlow) AS ?Aantal_publicaties)
+  (SUM(?numberOfPages) AS ?Aantal_bladzijden)
+  (SUM(?numberOfExtractsFallback) AS ?Aantal_uittreksels)
 FROM <http://mu.semte.ch/graphs/organizations/kanselarij>
 FROM NAMED <http://mu.semte.ch/graphs/public>
 WHERE {
   { ${group.subselect(params)} }
 
   OPTIONAL { ?publicationFlow fabio:hasPageCount ?numberOfPages . }
+
+  OPTIONAL { ?publicationFlow pub:aantalUittreksels ?numberOfExtracts . }
+  BIND (IF(BOUND(?numberOfExtracts), ?numberOfExtracts, 1) AS ?numberOfExtractsFallback)
 
   ${Filters.publicationDate(params)}
   ${Filters.decisionDate(params)}
