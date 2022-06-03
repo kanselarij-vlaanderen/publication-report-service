@@ -21,16 +21,7 @@ import * as Delta from './lib/delta.js';
  * 4. when frontend notices the job has finished, it shows the download link
  */
 
-/**
- * /// TOREVIEW:
- * in order to interpret the dates (parsed from in .toJSON() format (=.toISOString())) in the same timezone as the frontend
- *  node.js allows setting the timezone
- *
- * alternatives:
- * configure docker:
- * a timezone file for the docker container and mount it to /etc/timezone
- * @see https://serverfault.com/questions/683605/docker-container-time-timezone-will-not-reflect-changes#
- */
+// in order to interpret the dates (parsed from in .toJSON() format (=.toISOString())) in the same timezone as the frontend
 if (!process.env.TZ) {
   process.env.TZ = 'Europe/Brussels';
 }
