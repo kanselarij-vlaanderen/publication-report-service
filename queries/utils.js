@@ -1,8 +1,5 @@
 /**
- * sparqlEscapeDate uses toISOString()
- *  which takes the time in UTC
- *  and then takes only the date portion
- *  resulting in the previous day
+ * WORKAROUND: bug in sparqlEscapeDate returns the previous day in Belgium
  * @param {Date} date
  */
 export function sparqlEscapeDateLocal(date) {
