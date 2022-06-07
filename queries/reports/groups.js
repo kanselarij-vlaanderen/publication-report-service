@@ -58,7 +58,7 @@ const MandateePersons = {
     return `
 SELECT
   ?publicationFlow
-  (GROUP_CONCAT(?familyNameFallback, '/' ) AS ?group)
+  (GROUP_CONCAT(DISTINCT ?familyNameFallback, '/' ) AS ?group) # DISTINCT some mandatees and some persons have multiple entries
 WHERE {
   ?publicationFlow a pub:Publicatieaangelegenheid .
   OPTIONAL {
@@ -77,7 +77,6 @@ ORDER BY ?group
 `;
   },
 };
-
 
 export function get(groupName) {
   const MAPPING = {
