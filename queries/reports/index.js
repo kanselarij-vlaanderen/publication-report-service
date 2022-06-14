@@ -20,6 +20,7 @@ PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX pub: <http://mu.semte.ch/vocabularies/ext/publicatie/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX adms: <http://www.w3.org/ns/adms#>
 
 SELECT
   (?group AS ?${group.name})
@@ -35,6 +36,8 @@ WHERE {
 
   OPTIONAL { ?publicationFlow pub:aantalUittreksels ?numberOfExtracts . }
   BIND (IF(BOUND(?numberOfExtracts), ?numberOfExtracts, 1) AS ?numberOfExtractsFallback)
+  
+  ?publicationFlow adms:status <http://themis.vlaanderen.be/id/concept/publicatie-status/2f8dc814-bd91-4bcf-a823-baf1cdc42475> . # Gepubliceerd
 
   ${Filters.publicationDate(params)}
   ${Filters.decisionDate(params)}
