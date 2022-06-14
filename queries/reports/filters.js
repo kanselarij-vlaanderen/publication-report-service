@@ -49,7 +49,7 @@ export function decisionDate(params) {
 ?publicationFlow dct:subject ?decisionActivity .
 ?decisionActivity dossier:Activiteit.startdatum ?decisionDate .
 ${decisionDateStart ? `FILTER (?decisionDate >= ${decisionDateStart})` : ``}
-${decisionDateEnd ? `FILTER (?decisionDate <= ${decisionDateEnd})` : ``}
+${decisionDateEnd ? `FILTER (?decisionDate < ${decisionDateEnd})` : ``}
 `;
 }
 
