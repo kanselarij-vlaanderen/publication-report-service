@@ -7,21 +7,27 @@ SELECT DISTINCT
   ?publicationFlow
   (GROUP_CONCAT(?policyDomainLabelFallback; SEPARATOR='/') AS ?group)
 WHERE {
-  ?publicationFlow
-    a pub:Publicatieaangelegenheid ;
-    dossier:behandelt ?case.
-  ?case
-    a dossier:Dossier .
-  OPTIONAL {
-    ?case ext:beleidsgebied ?policyDomain .
-    GRAPH <http://mu.semte.ch/graphs/public> {
-      ?policyDomain
-        a skos:Concept ;
-        skos:prefLabel ?policyDomainLabel ;
-        skos:inScheme <http://themis.vlaanderen.be/id/concept-schema/f4981a92-8639-4da4-b1e3-0e1371feaa81> . # policy domains
+  {
+    SELECT DISTINCT ?policyDomainLabelFallback ?publicationFlow WHERE {
+      GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+        ?publicationFlow
+          a pub:Publicatieaangelegenheid ;
+          dossier:behandelt ?case.
+        ?case
+          a dossier:Dossier .
+        OPTIONAL {
+          ?case ext:beleidsgebied ?policyDomain .
+          GRAPH <http://mu.semte.ch/graphs/public> {
+            ?policyDomain
+              a skos:Concept ;
+              skos:prefLabel ?policyDomainLabel ;
+              skos:inScheme <http://themis.vlaanderen.be/id/concept-schema/f4981a92-8639-4da4-b1e3-0e1371feaa81> . # policy domains
+          }
+        }
+      }
+      BIND (IF (BOUND(?policyDomainLabel), ?policyDomainLabel, "<geen>") AS ?policyDomainLabelFallback)
     }
   }
-  BIND (IF (BOUND(?policyDomainLabel), ?policyDomainLabel, "<geen>") AS ?policyDomainLabelFallback)
 }
 GROUP BY ?publicationFlow
 ORDER BY ?group
@@ -37,12 +43,14 @@ SELECT
   ?publicationFlow
   (?regulationTypeLabelFallback As ?group)
 WHERE {
-  ?publicationFlow a pub:Publicatieaangelegenheid .
-  OPTIONAL {
-    ?publicationFlow pub:regelgevingType ?regulationType .
-    GRAPH <http://mu.semte.ch/graphs/public> {
-      ?regulationType a ext:RegelgevingType ;
-        skos:prefLabel ?regulationTypeLabel .
+  GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+    ?publicationFlow a pub:Publicatieaangelegenheid .
+    OPTIONAL {
+      ?publicationFlow pub:regelgevingType ?regulationType .
+      GRAPH <http://mu.semte.ch/graphs/public> {
+        ?regulationType a ext:RegelgevingType ;
+          skos:prefLabel ?regulationTypeLabel .
+      }
     }
   }
   BIND (IF (BOUND(?regulationTypeLabel), ?regulationTypeLabel, '<geen>') AS ?regulationTypeLabelFallback)
@@ -60,14 +68,16 @@ SELECT
   ?publicationFlow
   (GROUP_CONCAT(DISTINCT ?familyNameFallback, '/' ) AS ?group) # DISTINCT some mandatees and some persons have multiple entries
 WHERE {
-  ?publicationFlow a pub:Publicatieaangelegenheid .
-  OPTIONAL {
-    ?publicationFlow ext:heeftBevoegdeVoorPublicatie ?mandatee .
-    GRAPH <http://mu.semte.ch/graphs/public> {
-      ?mandatee a mandaat:Mandataris ;
-        mandaat:isBestuurlijkeAliasVan ?person .
-      ?person a person:Person ;
-        foaf:familyName ?familyName .
+  GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+    ?publicationFlow a pub:Publicatieaangelegenheid .
+    OPTIONAL {
+      ?publicationFlow ext:heeftBevoegdeVoorPublicatie ?mandatee .
+      GRAPH <http://mu.semte.ch/graphs/public> {
+        ?mandatee a mandaat:Mandataris ;
+          mandaat:isBestuurlijkeAliasVan ?person .
+        ?person a person:Person ;
+          foaf:familyName ?familyName .
+      }
     }
   }
   BIND (IF (BOUND(?familyName), ?familyName, '<geen>') AS ?familyNameFallback)
