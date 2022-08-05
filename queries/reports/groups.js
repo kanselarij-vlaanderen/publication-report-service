@@ -5,10 +5,10 @@ const GovernmentDomains = {
     return `
 SELECT DISTINCT
   ?publicationFlow
-  (GROUP_CONCAT(?policyDomainLabelFallback; SEPARATOR='/') AS ?group)
+  (GROUP_CONCAT(COALESCE(?policyDomainLabelFallback, "<geen>"); SEPARATOR='/') AS ?group)
 WHERE {
   {
-    SELECT DISTINCT ?policyDomainLabelFallback ?publicationFlow WHERE {
+    SELECT DISTINCT COALESCE(?policyDomainLabel, "<geen>") AS ?policyDomainLabelFallback ?publicationFlow WHERE {
       GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
         ?publicationFlow
           a pub:Publicatieaangelegenheid ;
@@ -25,7 +25,6 @@ WHERE {
           }
         }
       }
-      BIND (IF (BOUND(?policyDomainLabel), ?policyDomainLabel, "<geen>") AS ?policyDomainLabelFallback)
     }
   }
 }
