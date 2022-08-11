@@ -90,7 +90,7 @@ export function governmentDomains(params) {
     VALUES ?governmentDomain { ${ _governmentDomains.join('\n') } }
     ?publicationFlow dossier:behandelt ?case .
     ?case a dossier:Dossier ;
-      ext:beleidsgebied ?governmentDomain .
+      besluitvorming:beleidsveld ?governmentDomain .
     GRAPH <http://mu.semte.ch/graphs/public> {
       ?governmentDomain a skos:Concept ;
         skos:inScheme <http://themis.vlaanderen.be/id/concept-schema/f4981a92-8639-4da4-b1e3-0e1371feaa81> .
