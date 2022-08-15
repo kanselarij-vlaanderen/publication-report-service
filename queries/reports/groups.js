@@ -3,7 +3,7 @@ const GovernmentDomains = {
   name: 'Beleidsdomeinen',
   subselect() {
     return `
-SELECT DISTINCT
+SELECT
   ?publicationFlow
   (GROUP_CONCAT(COALESCE(?policyDomainLabelFallback, "<geen>"); SEPARATOR='/') AS ?group)
 WHERE {
@@ -40,7 +40,7 @@ const RegulationType = {
     return `
 SELECT
   ?publicationFlow
-  (?regulationTypeLabelFallback As ?group)
+  COALESCE(?regulationTypeLabel, "<geen>") as ?group
 WHERE {
   GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
     ?publicationFlow a pub:Publicatieaangelegenheid .
@@ -52,7 +52,6 @@ WHERE {
       }
     }
   }
-  BIND (IF (BOUND(?regulationTypeLabel), ?regulationTypeLabel, '<geen>') AS ?regulationTypeLabelFallback)
 }
 ORDER BY ?group
 `;
@@ -65,7 +64,7 @@ const MandateePersons = {
     return `
 SELECT
   ?publicationFlow
-  (GROUP_CONCAT(DISTINCT ?familyNameFallback, '/' ) AS ?group) # DISTINCT some mandatees and some persons have multiple entries
+  (GROUP_CONCAT(DISTINCT COALESCE(?familyName, "<geen>") as ?familyNameFallback, '/' ) AS ?group) # DISTINCT some mandatees and some persons have multiple entries
 WHERE {
   GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
     ?publicationFlow a pub:Publicatieaangelegenheid .
@@ -79,7 +78,6 @@ WHERE {
       }
     }
   }
-  BIND (IF (BOUND(?familyName), ?familyName, '<geen>') AS ?familyNameFallback)
 }
 GROUP BY ?publicationFlow
 ORDER BY ?group
