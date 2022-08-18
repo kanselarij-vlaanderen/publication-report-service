@@ -1,11 +1,40 @@
 // fragments included in SPARQL query built in index.js
 const GovernmentDomains = {
   name: 'Beleidsdomeinen',
-  subselect() {
+  subselect(params) {
+    // This is a temporary hack for reports with an end date before 2022-03-02, which is the first date of a publication with a newer policy domain
+    // this fix should be removed after the poicy domains have been normalized
+    let publicationDateRange = params.filter.publicationDate;
+    if (publicationDateRange) {
+      const [publicationDateStart, publicationDateEnd] = publicationDateRange;
+      if (publicationDateEnd && publicationDateEnd < new Date('2022-03-02')) {
+        return `
+  SELECT
+    ?publicationFlow
+    (GROUP_CONCAT(?policyDomainLabelFallback; SEPARATOR='/') AS ?group)
+  WHERE {
+    {
+      SELECT DISTINCT COALESCE(?policyDomainLabel, "<geen>") AS ?policyDomainLabelFallback ?publicationFlow WHERE {
+        GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+          ?publicationFlow
+            a pub:Publicatieaangelegenheid ;
+            beleidsdomein:provisioir ?provisionalPolicyDomain .
+        }
+        GRAPH <http://mu.semte.ch/graphs/public> {
+          ?provisionalPolicyDomain skos:prefLabel ?policyDomainLabel .
+        }
+      }
+    }
+  }
+  GROUP BY ?publicationFlow
+  ORDER BY ?group
+  `;
+      }
+    }
     return `
 SELECT
   ?publicationFlow
-  (GROUP_CONCAT(COALESCE(?policyDomainLabelFallback, "<geen>"); SEPARATOR='/') AS ?group)
+  (GROUP_CONCAT(?policyDomainLabelFallback; SEPARATOR='/') AS ?group)
 WHERE {
   {
     SELECT DISTINCT COALESCE(?policyDomainLabel, "<geen>") AS ?policyDomainLabelFallback ?publicationFlow WHERE {

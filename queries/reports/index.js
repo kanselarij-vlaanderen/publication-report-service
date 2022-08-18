@@ -21,6 +21,7 @@ PREFIX pub: <http://mu.semte.ch/vocabularies/ext/publicatie/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX adms: <http://www.w3.org/ns/adms#>
+PREFIX beleidsdomein: <http://mu.semte.ch/vocabularies/ext/publicatie/beleidsdomein#>
 
 SELECT
   (?group AS ?${group.name})

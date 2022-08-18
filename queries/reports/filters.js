@@ -91,6 +91,15 @@ export function governmentDomains(params) {
     if (!governmentDomains) {
       return ``;
     }
+    // This is a temporary hack for reports with an end date before 2022-03-02, which is the first date of a publication with a normalized policy domain
+    // this fix should be removed after the poicy domains have been normalized
+    let publicationDateRange = params.filter.publicationDate;
+    if (publicationDateRange) {
+      const [publicationDateStart, publicationDateEnd] = publicationDateRange;
+      if (publicationDateEnd && publicationDateEnd < new Date('2022-03-02')) {
+        return ``;
+      }
+    }
 
     let _governmentDomains = governmentDomains.map((uri) => sparqlEscapeUri(uri));
     return `
