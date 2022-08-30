@@ -109,7 +109,7 @@ export function governmentDomains(params) {
     GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
       ?publicationFlow dossier:behandelt ?case .
       ?case a dossier:Dossier ;
-        ext:beleidsgebied ?governmentDomain .
+        besluitvorming:beleidsveld ?governmentDomain .
     }
     GRAPH <http://mu.semte.ch/graphs/public> {
       ?governmentDomain a skos:Concept ;

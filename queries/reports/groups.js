@@ -45,7 +45,7 @@ WHERE {
         ?case
           a dossier:Dossier .
         OPTIONAL {
-          ?case ext:beleidsgebied ?policyDomain .
+          ?case besluitvorming:beleidsveld ?policyDomain .
           GRAPH <http://mu.semte.ch/graphs/public> {
             ?policyDomain
               a skos:Concept ;
