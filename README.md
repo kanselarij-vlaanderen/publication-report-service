@@ -9,7 +9,7 @@ The frontend does not access this service directly: both the request by the user
 Add the following snippet to `docker-compose.yml`:
 ```yml
   publication-report:
-    build: $PUBLCIATION_REPORTS_DIRECTORY
+    image: kanselarij/publication-report-service
     volumes:
       - $PUBLCIATION_REPORTS_DIRECTORY:/app
       - ./data/files:/share
