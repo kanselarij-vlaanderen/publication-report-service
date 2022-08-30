@@ -1,27 +1,61 @@
 // fragments included in SPARQL query built in index.js
 const GovernmentDomains = {
   name: 'Beleidsdomeinen',
-  subselect() {
+  subselect(params) {
+    // This is a temporary hack for reports with an end date before 2022-03-02, which is the first date of a publication with a newer policy domain
+    // this fix should be removed after the poicy domains have been normalized
+    let publicationDateRange = params.filter.publicationDate;
+    if (publicationDateRange) {
+      const [publicationDateStart, publicationDateEnd] = publicationDateRange;
+      if (publicationDateEnd && publicationDateEnd < new Date('2022-03-02')) {
+        return `
+  SELECT
+    ?publicationFlow
+    (GROUP_CONCAT(?policyDomainLabelFallback; SEPARATOR='/') AS ?group)
+  WHERE {
+    {
+      SELECT DISTINCT COALESCE(?policyDomainLabel, "<geen>") AS ?policyDomainLabelFallback ?publicationFlow WHERE {
+        GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+          ?publicationFlow
+            a pub:Publicatieaangelegenheid ;
+            beleidsdomein:provisioir ?provisionalPolicyDomain .
+        }
+        GRAPH <http://mu.semte.ch/graphs/public> {
+          ?provisionalPolicyDomain skos:prefLabel ?policyDomainLabel .
+        }
+      }
+    }
+  }
+  GROUP BY ?publicationFlow
+  ORDER BY ?group
+  `;
+      }
+    }
     return `
-SELECT DISTINCT
+SELECT
   ?publicationFlow
   (GROUP_CONCAT(?policyDomainLabelFallback; SEPARATOR='/') AS ?group)
 WHERE {
-  ?publicationFlow
-    a pub:Publicatieaangelegenheid ;
-    dossier:behandelt ?case.
-  ?case
-    a dossier:Dossier .
-  OPTIONAL {
-    ?case ext:beleidsgebied ?policyDomain .
-    GRAPH <http://mu.semte.ch/graphs/public> {
-      ?policyDomain
-        a skos:Concept ;
-        skos:prefLabel ?policyDomainLabel ;
-        skos:inScheme <http://themis.vlaanderen.be/id/concept-schema/f4981a92-8639-4da4-b1e3-0e1371feaa81> . # policy domains
+  {
+    SELECT DISTINCT COALESCE(?policyDomainLabel, "<geen>") AS ?policyDomainLabelFallback ?publicationFlow WHERE {
+      GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+        ?publicationFlow
+          a pub:Publicatieaangelegenheid ;
+          dossier:behandelt ?case.
+        ?case
+          a dossier:Dossier .
+        OPTIONAL {
+          ?case ext:beleidsgebied ?policyDomain .
+          GRAPH <http://mu.semte.ch/graphs/public> {
+            ?policyDomain
+              a skos:Concept ;
+              skos:prefLabel ?policyDomainLabel ;
+              skos:inScheme <http://themis.vlaanderen.be/id/concept-schema/f4981a92-8639-4da4-b1e3-0e1371feaa81> . # policy domains
+          }
+        }
+      }
     }
   }
-  BIND (IF (BOUND(?policyDomainLabel), ?policyDomainLabel, "<geen>") AS ?policyDomainLabelFallback)
 }
 GROUP BY ?publicationFlow
 ORDER BY ?group
@@ -35,17 +69,18 @@ const RegulationType = {
     return `
 SELECT
   ?publicationFlow
-  (?regulationTypeLabelFallback As ?group)
+  COALESCE(?regulationTypeLabel, "<geen>") as ?group
 WHERE {
-  ?publicationFlow a pub:Publicatieaangelegenheid .
-  OPTIONAL {
-    ?publicationFlow pub:regelgevingType ?regulationType .
-    GRAPH <http://mu.semte.ch/graphs/public> {
-      ?regulationType a ext:RegelgevingType ;
-        skos:prefLabel ?regulationTypeLabel .
+  GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+    ?publicationFlow a pub:Publicatieaangelegenheid .
+    OPTIONAL {
+      ?publicationFlow pub:regelgevingType ?regulationType .
+      GRAPH <http://mu.semte.ch/graphs/public> {
+        ?regulationType a ext:RegelgevingType ;
+          skos:prefLabel ?regulationTypeLabel .
+      }
     }
   }
-  BIND (IF (BOUND(?regulationTypeLabel), ?regulationTypeLabel, '<geen>') AS ?regulationTypeLabelFallback)
 }
 ORDER BY ?group
 `;
@@ -58,19 +93,20 @@ const MandateePersons = {
     return `
 SELECT
   ?publicationFlow
-  (GROUP_CONCAT(DISTINCT ?familyNameFallback, '/' ) AS ?group) # DISTINCT some mandatees and some persons have multiple entries
+  (GROUP_CONCAT(DISTINCT COALESCE(?familyName, "<geen>") as ?familyNameFallback, '/' ) AS ?group) # DISTINCT some mandatees and some persons have multiple entries
 WHERE {
-  ?publicationFlow a pub:Publicatieaangelegenheid .
-  OPTIONAL {
-    ?publicationFlow ext:heeftBevoegdeVoorPublicatie ?mandatee .
-    GRAPH <http://mu.semte.ch/graphs/public> {
-      ?mandatee a mandaat:Mandataris ;
-        mandaat:isBestuurlijkeAliasVan ?person .
-      ?person a person:Person ;
-        foaf:familyName ?familyName .
+  GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+    ?publicationFlow a pub:Publicatieaangelegenheid .
+    OPTIONAL {
+      ?publicationFlow ext:heeftBevoegdeVoorPublicatie ?mandatee .
+      GRAPH <http://mu.semte.ch/graphs/public> {
+        ?mandatee a mandaat:Mandataris ;
+          mandaat:isBestuurlijkeAliasVan ?person .
+        ?person a person:Person ;
+          foaf:familyName ?familyName .
+      }
     }
   }
-  BIND (IF (BOUND(?familyName), ?familyName, '<geen>') AS ?familyNameFallback)
 }
 GROUP BY ?publicationFlow
 ORDER BY ?group

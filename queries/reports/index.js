@@ -21,23 +21,23 @@ PREFIX pub: <http://mu.semte.ch/vocabularies/ext/publicatie/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX adms: <http://www.w3.org/ns/adms#>
+PREFIX beleidsdomein: <http://mu.semte.ch/vocabularies/ext/publicatie/beleidsdomein#>
 
 SELECT
   (?group AS ?${group.name})
   (COUNT(DISTINCT ?publicationFlow) AS ?Aantal_publicaties)
-  (SUM(?numberOfPages) AS ?Aantal_bladzijden)
-  (SUM(?numberOfExtractsFallback) AS ?Aantal_uittreksels)
-FROM <http://mu.semte.ch/graphs/organizations/kanselarij>
-FROM NAMED <http://mu.semte.ch/graphs/public>
+  (SUM(COALESCE(?numberOfPages, 0)) AS ?Aantal_bladzijden)
+  (SUM(COALESCE(?numberOfExtracts, 1)) AS ?Aantal_uittreksels)
 WHERE {
   { ${group.subselect(params)} }
 
-  OPTIONAL { ?publicationFlow fabio:hasPageCount ?numberOfPages . }
+  GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+    OPTIONAL { ?publicationFlow fabio:hasPageCount ?numberOfPages . }
 
-  OPTIONAL { ?publicationFlow pub:aantalUittreksels ?numberOfExtracts . }
-  BIND (IF(BOUND(?numberOfExtracts), ?numberOfExtracts, 1) AS ?numberOfExtractsFallback)
-  
-  ?publicationFlow adms:status <http://themis.vlaanderen.be/id/concept/publicatie-status/2f8dc814-bd91-4bcf-a823-baf1cdc42475> . # Gepubliceerd
+    OPTIONAL { ?publicationFlow pub:aantalUittreksels ?numberOfExtracts . }
+
+    ?publicationFlow adms:status <http://themis.vlaanderen.be/id/concept/publicatie-status/2f8dc814-bd91-4bcf-a823-baf1cdc42475> . # Gepubliceerd
+  }
 
   ${Filters.publicationDate(params)}
   ${Filters.decisionDate(params)}
