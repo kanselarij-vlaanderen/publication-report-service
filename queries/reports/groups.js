@@ -50,7 +50,7 @@ WHERE {
             ?policyDomain
               a skos:Concept ;
               skos:prefLabel ?policyDomainLabel ;
-              skos:inScheme <http://themis.vlaanderen.be/id/concept-schema/f4981a92-8639-4da4-b1e3-0e1371feaa81> . # policy domains
+              skos:inScheme <http://themis.vlaanderen.be/id/concept-scheme/f4981a92-8639-4da4-b1e3-0e1371feaa81> . # policy domains
           }
         }
       }

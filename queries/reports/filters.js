@@ -113,7 +113,7 @@ export function governmentDomains(params) {
     }
     GRAPH <http://mu.semte.ch/graphs/public> {
       ?governmentDomain a skos:Concept ;
-        skos:inScheme <http://themis.vlaanderen.be/id/concept-schema/f4981a92-8639-4da4-b1e3-0e1371feaa81> .
+        skos:inScheme <http://themis.vlaanderen.be/id/concept-scheme/f4981a92-8639-4da4-b1e3-0e1371feaa81> .
     }
   }
 }
