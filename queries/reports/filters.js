@@ -91,16 +91,6 @@ export function governmentDomains(params) {
     if (!governmentDomains) {
       return ``;
     }
-    // This is a temporary hack for reports with an end date before 2022-03-02, which is the first date of a publication with a normalized policy domain
-    // this fix should be removed after the poicy domains have been normalized
-    let publicationDateRange = params.filter.publicationDate;
-    if (publicationDateRange) {
-      const [publicationDateStart, publicationDateEnd] = publicationDateRange;
-      if (publicationDateEnd && publicationDateEnd < new Date('2022-03-02')) {
-        return ``;
-      }
-    }
-
     let _governmentDomains = governmentDomains.map((uri) => sparqlEscapeUri(uri));
     return `
 {
@@ -108,8 +98,9 @@ export function governmentDomains(params) {
     VALUES ?governmentDomain { ${ _governmentDomains.join('\n') } }
     GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
       ?publicationFlow dossier:behandelt ?case .
-      ?case a dossier:Dossier ;
-        besluitvorming:beleidsveld ?governmentDomain .
+      ?case a dossier:Dossier .
+      ?case dossier:Dossier.isNeerslagVan ?decisionmakingFlow .
+      ?decisionmakingFlow besluitvorming:beleidsveld ?governmentDomain .
     }
     GRAPH <http://mu.semte.ch/graphs/public> {
       ?governmentDomain a skos:Concept ;
