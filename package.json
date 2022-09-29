@@ -1,16 +1,11 @@
 {
   "name": "publication-report-service",
   "description": "Generate CSV reports to monitor the publication process",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "licence": "MIT",
-  "//": "type=module: IDE support for `import`",
   "type": "module",
-  "// note: engines": "IDE support for newer features",
   "engines": {
     "node": "14.16.1"
-  },
-  "// note: depencencies": {
-    "node-fetch": "< 3: version 3 requires esmodules"
   },
   "dependencies": {
     "@lblod/mu-auth-sudo": "~0.5.1",
