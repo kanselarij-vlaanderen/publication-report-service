@@ -10,14 +10,9 @@ WHERE {
   {
     SELECT DISTINCT COALESCE(?policyDomainLabel, "<geen>") AS ?policyDomainLabelFallback ?publicationFlow WHERE {
       GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
-        ?publicationFlow
-          a pub:Publicatieaangelegenheid ;
-          dossier:behandelt ?case.
-        ?case
-          a dossier:Dossier .
-        ?case dossier:Dossier.isNeerslagVan ?decisionmakingFlow .
+        ?publicationFlow a pub:Publicatieaangelegenheid .
         OPTIONAL {
-          ?decisionmakingFlow besluitvorming:beleidsveld ?policyDomain .
+          ?publicationFlow pub:beleidsveld ?policyDomain .
           GRAPH <http://mu.semte.ch/graphs/public> {
             ?policyDomain
               a skos:Concept ;

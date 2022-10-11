@@ -97,10 +97,7 @@ export function governmentDomains(params) {
   SELECT DISTINCT ?publicationFlow WHERE {
     VALUES ?governmentDomain { ${ _governmentDomains.join('\n') } }
     GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
-      ?publicationFlow dossier:behandelt ?case .
-      ?case a dossier:Dossier .
-      ?case dossier:Dossier.isNeerslagVan ?decisionmakingFlow .
-      ?decisionmakingFlow besluitvorming:beleidsveld ?governmentDomain .
+      ?publicationFlow pub:beleidsveld ?governmentDomain .
     }
     GRAPH <http://mu.semte.ch/graphs/public> {
       ?governmentDomain a skos:Concept ;
