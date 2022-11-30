@@ -76,7 +76,8 @@ export function isViaCouncilOfMinisters(params) {
         dossier:behandelt ?case .
       ?case a dossier:Dossier .
       OPTIONAL {
-        ?case dossier:doorloopt ?subcase .
+        ?case dossier:Dossier.isNeerslagVan ?decisionFlow .
+        ?decisionFlow dossier:doorloopt ?subcase  .
         ?subcase a dossier:Procedurestap .
       }
       FILTER (BOUND(?subcase) = ${isViaCouncilOfMinisters ? `TRUE` : `FALSE`})
