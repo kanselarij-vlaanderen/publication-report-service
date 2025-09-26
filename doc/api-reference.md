@@ -18,7 +18,7 @@ The parameters are passed as a JSON object. The schema for this object can be fo
 An example using all filter parameters:
 Note it is not expected the service will be called this way. For the combinations of query options in use see [./report-types.md](./report-types.md))
 ```javascript
-  let jobParams = {
+  const jobParams = {
     name: 'Publicatierapport',
     query: {
       group: 'mandateePersons',

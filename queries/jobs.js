@@ -1,31 +1,29 @@
-/* eslint-disable prettier/prettier */
-import { sparqlEscapeUri, sparqlEscapeDateTime } from 'mu';
+import { sparqlEscapeUri, sparqlEscapeDateTime, sparqlEscapeString, query, update } from 'mu';
+import { JOB } from '../config';
 
 /**
  *
  * @param {string?} jobUri if not provided: return all jobs
  * @returns
  */
-export function buildGet(jobUri) {
-  let _jobUri = jobUri !== undefined ? sparqlEscapeUri(jobUri) : undefined;
-
-  return `
-PREFIX cogs: <http://vocab.deri.ie/cogs#>
+export async function findJob(jobUri) {
+  const _jobUri = jobUri !== undefined ? sparqlEscapeUri(jobUri) : undefined;
+  const queryString = `
 PREFIX dct: <http://purl.org/dc/terms/>
-PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX pub: <http://mu.semte.ch/vocabularies/ext/publicatie/>
+PREFIX adms: <http://www.w3.org/ns/adms#>
 
 SELECT *
 WHERE {
   ${_jobUri ? `VALUES ?jobUri { ${_jobUri} }`: ''}
 
-  ?jobUri a pub:PublicationMetricsExportJob .
+  ?jobUri a ${sparqlEscapeUri(JOB.RDF_TYPE)} .
   ?jobUri dct:created ?createdTime .
   ?jobUri pub:exportJobConfig ?config .
   ${/* Required relationship, but relations are added by mu-cl-resources in a different INSERT command. */ ''}
   OPTIONAL { ?jobUri dct:type ?reportTypeUri . }
-  OPTIONAL { ?jobUri ext:status ?statusUri . }
+  OPTIONAL { ?jobUri adms:status ?statusUri . }
   OPTIONAL { ?jobUri prov:startedAtTime ?startTime . }
   OPTIONAL { ?jobUri prov:endedAtTime ?endTime . }
   ${/* Required relationship, but relations are added by mu-cl-resources in a different INSERT command. */ ''}
@@ -33,17 +31,19 @@ WHERE {
   OPTIONAL { ?jobUri prov:generated ?fileUri . }
 }
 `;
+
+return await query(queryString);
 }
 
 /** @typedef {ReturnType<parseGet>} Job */
 export function parseGet(data) {
-  let jobRecords = data.results.bindings.map((jobResult) => {
-    let createdTime = new Date(jobResult.createdTime.value);
-    let config = jobResult.config.value;
-    let startTime = jobResult.startTime
+  const jobRecords = data.results.bindings.map((jobResult) => {
+    const createdTime = new Date(jobResult.createdTime.value);
+    const config = jobResult.config.value;
+    const startTime = jobResult.startTime
       ? new Date(jobResult.startTime.value)
       : undefined;
-    let endTime = jobResult.endTime
+    const endTime = jobResult.endTime
       ? new Date(jobResult.endTime.value)
       : undefined;
 
@@ -61,88 +61,50 @@ export function parseGet(data) {
   return jobRecords;
 }
 
-export function updateStatusToRunning(jobUri, time) {
-  let _jobUri = sparqlEscapeUri(jobUri);
-
-  return `
-  PREFIX cogs: <http://vocab.deri.ie/cogs#>
-  PREFIX dct: <http://purl.org/dc/terms/>
-  PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
+export async function attachResultToJob(job, result) {
+  const queryString = `
   PREFIX prov: <http://www.w3.org/ns/prov#>
-  PREFIX pub: <http://mu.semte.ch/vocabularies/ext/publicatie/>
 
   INSERT {
-    GRAPH ?g {
-      ${_jobUri} ext:status cogs:Running .
-      ${_jobUri} prov:startedAtTime ${sparqlEscapeDateTime(time)} .
-    }
+      ${sparqlEscapeUri(job)} prov:generated ${sparqlEscapeUri(result)} .
   }
   WHERE {
-    GRAPH ?g {
-      ${_jobUri} a pub:PublicationMetricsExportJob .
-    }
-  }
-`;
+      ${sparqlEscapeUri(job)} a ${sparqlEscapeUri(JOB.RDF_TYPE)} .
+  }`;
+  await update(queryString);
+  return job;
 }
 
-export function updateStatusToSuccess(jobUri, time, jobResultUri) {
-  let _jobUri = sparqlEscapeUri(jobUri);
+export async function updateJobStatus(uri, status, errorMessage) {
+  const time = new Date();
+  let timePred;
+  if (status === JOB.STATUSES.SUCCESS || status === JOB.STATUSES.FAILED) { // final statusses
+    timePred = 'http://www.w3.org/ns/prov#endedAtTime';
+  } else {
+    timePred = 'http://www.w3.org/ns/prov#startedAtTime';
+  }
+  const escapedUri = sparqlEscapeUri(uri);
+  const queryString = `
+  PREFIX adms: <http://www.w3.org/ns/adms#>
+  PREFIX schema: <http://schema.org/>
 
-  return `
-PREFIX cogs: <http://vocab.deri.ie/cogs#>
-PREFIX dct: <http://purl.org/dc/terms/>
-PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
-PREFIX prov: <http://www.w3.org/ns/prov#>
-PREFIX pub: <http://mu.semte.ch/vocabularies/ext/publicatie/>
-
-DELETE {
-  GRAPH ?g {
-    ${_jobUri} ext:status cogs:Running .
+  DELETE {
+      ${escapedUri} adms:status ?status ;
+          ${sparqlEscapeUri(timePred)} ?time .
   }
-}
-INSERT {
-  GRAPH ?g {
-    ${_jobUri} ext:status cogs:Success .
-    ${_jobUri} prov:endedAtTime ${sparqlEscapeDateTime(time)} .
-    ${_jobUri} prov:generated ${sparqlEscapeUri(jobResultUri)} .
+  INSERT {
+      ${escapedUri} adms:status ${sparqlEscapeUri(status)} ;
+          ${
+            errorMessage
+              ? `schema:error ${sparqlEscapeString(errorMessage)} ;`
+              : ''
+          }
+          ${sparqlEscapeUri(timePred)} ${sparqlEscapeDateTime(time)} .
   }
-}
-WHERE {
-  GRAPH ?g {
-    ${_jobUri} a pub:PublicationMetricsExportJob .
-  }
-}
-`;
-}
-
-export function updateStatusToError(jobUri, time) {
-  let _jobUri = sparqlEscapeUri(jobUri);
-
-  return `
-PREFIX cogs: <http://vocab.deri.ie/cogs#>
-PREFIX dct: <http://purl.org/dc/terms/>
-PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
-PREFIX prov: <http://www.w3.org/ns/prov#>
-PREFIX pub: <http://mu.semte.ch/vocabularies/ext/publicatie/>
-
-DELETE {
-  GRAPH ?g {
-    ${_jobUri} ext:status ?status .
-    ${_jobUri} prov:endedAtTime ?time .
-  }
-}
-INSERT {
-  GRAPH ?g {
-    ${_jobUri} ext:status cogs:Fail .
-    ${_jobUri} prov:endedAtTime ${sparqlEscapeDateTime(time)} .
-  }
-}
-WHERE {
-  GRAPH ?g {
-    ${_jobUri} a pub:PublicationMetricsExportJob .
-    OPTIONAL { ${_jobUri} ext:status ?status . }
-    OPTIONAL { ${_jobUri} prov:endedAtTime ?time . }
-  }
-}
-`;
+  WHERE {
+      ${escapedUri} a ${sparqlEscapeUri(JOB.RDF_TYPE)} .
+      OPTIONAL { ${escapedUri} adms:status ?status }
+      OPTIONAL { ${escapedUri} ${sparqlEscapeUri(timePred)} ?time }
+  }`;
+  await update(queryString);
 }

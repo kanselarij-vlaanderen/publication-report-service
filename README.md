@@ -50,11 +50,13 @@ The service is triggered by the notification of the creation of a `pub:Publicati
 Example of the creation of a `pub:PublicationMetricsExportJob` in [frontend-kaleidos]
 (https://github.com/kanselarij-vlaanderen/frontend-kaleidos).
 ```javascript
-    let user = await this.currentSession.user;
-    let now = new Date();
-    let job = this.store.createRecord('publication-metrics-export-job', {
+    const user = await this.currentSession.user;
+    const now = new Date();
+    const status = 'http://redpencil.data.gift/id/concept/JobStatus/scheduled',
+    const job = this.store.createRecord('publication-metrics-export-job', {
       created: now,
       generatedBy: user,
+      status,
       config: {
         name: yourReportName,
         query: {
