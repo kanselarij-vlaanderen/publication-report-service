@@ -1,10 +1,11 @@
-/* eslint-disable prettier/prettier */ // keep interpolated SPARQL strings clear
+import { sparqlEscapeUri} from 'mu';
 import * as Groups from './groups.js';
 import * as Filters from './filters.js';
+import { GRAPHS, STATUS_PUBLISHED } from '../../config.js';
 
 /** @see {../../doc/types.md} for documentation of query param combinations in use in the frontend */
 export function build(params) {
-  let group = Groups.get(params.group);
+  const group = Groups.get(params.group);
 
   return `
 PREFIX dct: <http://purl.org/dc/terms/>
@@ -32,12 +33,12 @@ SELECT
 WHERE {
   { ${group.subselect(params)} }
 
-  GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+  GRAPH ${sparqlEscapeUri(GRAPHS.KANSELARIJ)} {
     OPTIONAL { ?publicationFlow fabio:hasPageCount ?numberOfPages . }
 
     OPTIONAL { ?publicationFlow pub:aantalUittreksels ?numberOfExtracts . }
 
-    ?publicationFlow adms:status <http://themis.vlaanderen.be/id/concept/publicatie-status/2f8dc814-bd91-4bcf-a823-baf1cdc42475> . # Gepubliceerd
+    ?publicationFlow adms:status ${sparqlEscapeUri(STATUS_PUBLISHED)} . # Gepubliceerd
   }
 
   ${Filters.publicationDate(params)}

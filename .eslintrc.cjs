@@ -13,8 +13,5 @@ module.exports = {
   ],
   rules: {
     'prettier/prettier': 'warn',
-    // quick fixes to allow mu modules
-    'node/no-extraneous-import': 'off',
-    'node/no-missing-import': 'off',
   },
 };

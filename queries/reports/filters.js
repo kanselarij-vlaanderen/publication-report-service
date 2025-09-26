@@ -1,16 +1,16 @@
-/* eslint-disable prettier/prettier */
 // fragments included in SPARQL query built in index.js
-import { sparqlEscapeDate, sparqlEscapeUri } from 'mu'; // eslint-disable-line
+import { sparqlEscapeUri } from 'mu';
 import { sparqlEscapeDateLocal } from '../utils.js';
+import { GRAPHS, CONCEPT_SCHEME_GOV_DOMAIN } from '../../config.js';
 
 export function publicationDate(params) {
-    let publicationDateRange = params.filter.publicationDate;
-    let hasFilter = publicationDateRange?.some((date) => date);
+    const publicationDateRange = params.filter.publicationDate;
+    const hasFilter = publicationDateRange?.some((date) => date);
     if (!hasFilter) {
       return ``;
     }
 
-    let [publicationDateStart, publicationDateEnd] = publicationDateRange.map(
+    const [publicationDateStart, publicationDateEnd] = publicationDateRange.map(
       (date) => (date ? sparqlEscapeDateLocal(date) : undefined)
     );
     return `
@@ -19,14 +19,14 @@ export function publicationDate(params) {
     ?publicationFlow
     (MIN(?publicationDate) AS ?minPublicationDate)
   WHERE {
-    GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+    GRAPH ${sparqlEscapeUri(GRAPHS.KANSELARIJ)} {
       ?publicationFlow a pub:Publicatieaangelegenheid ;
         pub:doorlooptPublicatie ?publicationSubcase .
       ?publicationActivity pub:publicatieVindtPlaatsTijdens ?publicationSubcase .
       ?publicationActivity a pub:PublicatieActiviteit ;
         prov:generated ?decision .
     }
-    VALUES ?g { <http://mu.semte.ch/graphs/organizations/kanselarij> <http://mu.semte.ch/graphs/staatsblad> }
+    VALUES ?g { ${sparqlEscapeUri(GRAPHS.KANSELARIJ)} ${sparqlEscapeUri(GRAPHS.STAATSBLAD)} }
     GRAPH ?g {
       ?decision a eli:LegalResource;
         eli:date_publication ?publicationDate .
@@ -40,18 +40,18 @@ ${publicationDateEnd ? `FILTER (?minPublicationDate < ${publicationDateEnd})` : 
 }
 
 export function decisionDate(params) {
-    let decisionDateRange = params.filter.decisionDate;
-    let hasFilter = decisionDateRange?.some((date) => date);
+    const decisionDateRange = params.filter.decisionDate;
+    const hasFilter = decisionDateRange?.some((date) => date);
     if (!hasFilter) {
       return ``;
     }
 
-    let [decisionDateStart, decisionDateEnd] = decisionDateRange.map((date) =>
+    const [decisionDateStart, decisionDateEnd] = decisionDateRange.map((date) =>
       date ? sparqlEscapeDateLocal(date) : undefined
     );
 
     return `
-GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+GRAPH ${sparqlEscapeUri(GRAPHS.KANSELARIJ)} {
   ?publicationFlow dct:subject ?decisionActivity .
   ?decisionActivity dossier:Activiteit.startdatum ?decisionDate .
   ${decisionDateStart ? `FILTER (?decisionDate >= ${decisionDateStart})` : ``}
@@ -61,7 +61,7 @@ GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
 }
 
 export function isViaCouncilOfMinisters(params) {
-    let isViaCouncilOfMinisters = params.filter.isViaCouncilOfMinisters;
+    const isViaCouncilOfMinisters = params.filter.isViaCouncilOfMinisters;
     if (isViaCouncilOfMinisters === undefined) {
       return ``;
     }
@@ -71,7 +71,7 @@ export function isViaCouncilOfMinisters(params) {
   SELECT DISTINCT
    ?publicationFlow
   WHERE {
-    GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+    GRAPH ${sparqlEscapeUri(GRAPHS.KANSELARIJ)} {
       ?publicationFlow a pub:Publicatieaangelegenheid ;
         dossier:behandelt ?case .
       ?case a dossier:Dossier .
@@ -88,21 +88,21 @@ export function isViaCouncilOfMinisters(params) {
 };
 
 export function governmentDomains(params) {
-    let governmentDomains = params.filter.governmentDomains;
+    const governmentDomains = params.filter.governmentDomains;
     if (!governmentDomains) {
       return ``;
     }
-    let _governmentDomains = governmentDomains.map((uri) => sparqlEscapeUri(uri));
+    const governmentDomainUris = governmentDomains.map((uri) => sparqlEscapeUri(uri));
     return `
 {
   SELECT DISTINCT ?publicationFlow WHERE {
-    VALUES ?governmentDomain { ${ _governmentDomains.join('\n') } }
-    GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+    VALUES ?governmentDomain { ${ governmentDomainUris.join('\n') } }
+    GRAPH ${sparqlEscapeUri(GRAPHS.KANSELARIJ)} {
       ?publicationFlow pub:beleidsveld ?governmentDomain .
     }
-    GRAPH <http://mu.semte.ch/graphs/public> {
+    GRAPH ${sparqlEscapeUri(GRAPHS.PUBLIC)} {
       ?governmentDomain a skos:Concept ;
-        skos:inScheme <http://themis.vlaanderen.be/id/concept-scheme/f4981a92-8639-4da4-b1e3-0e1371feaa81> .
+        skos:inScheme ${sparqlEscapeUri(CONCEPT_SCHEME_GOV_DOMAIN)} .
     }
   }
 }
@@ -110,20 +110,20 @@ export function governmentDomains(params) {
 }
 
 export function regulationType(params) {
-    let regulationTypes = params.filter.regulationType;
+    const regulationTypes = params.filter.regulationType;
     if (!regulationTypes) {
       return ``;
     }
 
-    let _regulationTypes = regulationTypes.map((uri) => sparqlEscapeUri(uri));
+    const regulationTypesUris = regulationTypes.map((uri) => sparqlEscapeUri(uri));
     return `
 {
   SELECT DISTINCT ?publicationFlow WHERE {
-    VALUES ?regulationType { ${ _regulationTypes.join('\n') } }
-    GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+    VALUES ?regulationType { ${ regulationTypesUris.join('\n') } }
+    GRAPH ${sparqlEscapeUri(GRAPHS.KANSELARIJ)} {
       ?publicationFlow pub:regelgevingType ?regulationType .
     }
-    GRAPH <http://mu.semte.ch/graphs/public> {
+    GRAPH ${sparqlEscapeUri(GRAPHS.PUBLIC)} {
       ?regulationType a ext:RegelgevingType .
     }
   }
@@ -132,21 +132,21 @@ export function regulationType(params) {
 }
 
 export function mandateePersons(params) {
-    let mandateePersons = params.filter.mandateePersons;
+    const mandateePersons = params.filter.mandateePersons;
     if (!mandateePersons) {
       return ``;
     }
 
-    let _mandateePersons = mandateePersons.map((mandatee) => sparqlEscapeUri(mandatee));
+    const mandateePersonUris = mandateePersons.map((mandatee) => sparqlEscapeUri(mandatee));
     return `
 {
   SELECT DISTINCT ?publicationFlow WHERE {
-    VALUES ?person { ${_mandateePersons.join('\n')} }
-    GRAPH <http://mu.semte.ch/graphs/organizations/kanselarij> {
+    VALUES ?person { ${mandateePersonUris.join('\n')} }
+    GRAPH ${sparqlEscapeUri(GRAPHS.KANSELARIJ)} {
       ?publicationFlow a pub:Publicatieaangelegenheid ;
       ext:heeftBevoegdeVoorPublicatie ?mandatee .
     }
-    GRAPH <http://mu.semte.ch/graphs/public> {
+    GRAPH ${sparqlEscapeUri(GRAPHS.PUBLIC)} {
       ?mandatee a mandaat:Mandataris ;
         mandaat:isBestuurlijkeAliasVan ?person .
       ?person a person:Person .

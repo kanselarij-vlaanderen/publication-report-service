@@ -1,9 +1,9 @@
-import * as Config from '../config.js';
 import {
   sparqlEscapeUri,
   sparqlEscapeString,
   sparqlEscapeInt,
   sparqlEscapeDateTime,
+  update,
 } from 'mu';
 
 /**
@@ -23,8 +23,8 @@ import {
  * @param {FileRecord} userFileRecord
  * @param {FileRecord} storageFileRecord
  */
-export function create(userFileRecord, storageFileRecord) {
-  return `
+export async function create(userFileRecord, storageFileRecord) {
+  const queryString = `
 PREFIX mu: <http://mu.semte.ch/vocabularies/core/>
 PREFIX nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>
 PREFIX dbpedia: <http://dbpedia.org/ontology/>
@@ -32,7 +32,6 @@ PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#>
 
 INSERT DATA {
-  GRAPH ${sparqlEscapeUri(Config.GRAPH)} {
     ${sparqlEscapeUri(userFileRecord.uri)} a nfo:FileDataObject ;
         nfo:fileName ${sparqlEscapeString(userFileRecord.name)} ;
         mu:uuid ${sparqlEscapeString(userFileRecord.uuid)} ;
@@ -52,7 +51,7 @@ INSERT DATA {
         )} ;
         dct:created ${sparqlEscapeDateTime(storageFileRecord.createdTime)} ;
         dct:modified ${sparqlEscapeDateTime(storageFileRecord.createdTime)} .
-    }
   }
 `;
+  await update(queryString);
 }

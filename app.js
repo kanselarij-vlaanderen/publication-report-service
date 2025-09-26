@@ -1,5 +1,5 @@
-import * as Express from 'express';
-import Mu from 'mu';
+import { app, errorHandler } from 'mu';
+import bodyParser from 'body-parser';
 import * as JobRunner from './lib/job-runner.js';
 import * as DownloadJob from './lib/download-job.js';
 import * as Delta from './lib/delta.js';
@@ -11,7 +11,7 @@ import * as Delta from './lib/delta.js';
  * 3. publication-report-service comes in action:
  *    flow: (based on the file-bundling-service @see https://github.com/kanselarij-vlaanderen/file-bundling-service)
  *    1. /delta endpoint picks up notification @see file://./lib/delta.js
- *    2. JobRunner sets status to Running and runs DownloadJob @see file://./lib/job-runner.js
+ *    2. JobRunner sets status to Busy and runs DownloadJob @see file://./lib/job-runner.js
  *    3. DownloadJob runs @see file://./lib/download-job.js
  *      1. parse job parameters @see file://./job-params.js
  *      2. build report query @see file://./queries/reports/index.js
@@ -26,13 +26,15 @@ if (!process.env.TZ) {
   process.env.TZ = 'Europe/Brussels';
 }
 
-Mu.app.post('/delta', Express.json(), async function (req, res) {
+app.post('/delta', bodyParser.json(), async (req, res) => {
   res.sendStatus(202);
 
-  let deltas = req.body;
-  let newJobUris = Delta.filterInsertedJobUris(deltas);
+  const deltas = req.body;
+  const newJobUris = Delta.filterInsertedJobUris(deltas);
 
-  for (let jobUri of newJobUris) {
+  for (const jobUri of newJobUris) {
     JobRunner.run(jobUri, DownloadJob);
   }
 });
+
+app.use(errorHandler);

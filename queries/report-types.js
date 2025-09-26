@@ -1,10 +1,10 @@
-import * as Mu from 'mu';
+import { query, sparqlEscapeUri} from 'mu';
 
-export function buildGet(reportTypeUri) {
-  let _reportTypeUri =
-    reportTypeUri !== undefined ? Mu.sparqlEscapeUri(reportTypeUri) : undefined;
+export async function findReportType(reportTypeUri) {
+  const _reportTypeUri =
+    reportTypeUri !== undefined ? sparqlEscapeUri(reportTypeUri) : undefined;
 
-  return `
+  const queryString = `
 PREFIX pub: <http://mu.semte.ch/vocabularies/ext/publicatie/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX mu: <http://mu.semte.ch/vocabularies/core/>
@@ -18,4 +18,5 @@ WHERE {
   ?uri skos:prefLabel ?label .
 }
 `;
+  return await query(queryString);
 }
