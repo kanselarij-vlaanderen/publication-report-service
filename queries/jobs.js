@@ -6,7 +6,7 @@ import { JOB } from '../config';
  * @param {string?} jobUri if not provided: return all jobs
  * @returns
  */
-export function findJob(jobUri) {
+export async function findJob(jobUri) {
   const _jobUri = jobUri !== undefined ? sparqlEscapeUri(jobUri) : undefined;
   const queryString = `
 PREFIX dct: <http://purl.org/dc/terms/>
@@ -32,7 +32,7 @@ WHERE {
 }
 `;
 
-return query(queryString);
+return await query(queryString);
 }
 
 /** @typedef {ReturnType<parseGet>} Job */
