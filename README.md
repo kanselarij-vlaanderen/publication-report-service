@@ -17,6 +17,7 @@ Add the following snippet to `docker-compose.yml`:
       - NODE_ENV=development
       - MU_SPARQL_ENDPOINT=http://database:8890/sparql
       - VIRTUOSO_SPARQL_ENDPOINT=http://triplestore:8890/sparql
+      - ALLOW_MU_AUTH_SUDO=true
 ```
 ### Deltanotifier
 Add the following snippet to `config/delta/rules.js`
